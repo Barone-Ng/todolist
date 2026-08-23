@@ -105,6 +105,7 @@ body{
 .card-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom: 14px; }
 .card-title{ font-family:'Fraunces', serif; font-weight:600; font-size: 20px; color: var(--moss-deep); margin:0; }
 .card-count{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: rgba(22,38,31,0.5); }
+.card-hint{ font-size: 12.5px; color: rgba(22,38,31,0.5); margin: -8px 0 12px; }
 
 .item-row{ display:flex; align-items:center; gap: 12px; padding: 10px 2px; border-bottom: 1px solid var(--line); }
 .item-row:last-of-type{ border-bottom:none; }
