@@ -1,8 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
   getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, setDoc,
   onSnapshot, query, where
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import { firebaseConfig, isConfigured } from "./firebase-config.js";
 
 if(!isConfigured){
@@ -51,6 +51,7 @@ document.getElementById('switchBtn').addEventListener('click', ()=>{
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function openDashboard(person){
