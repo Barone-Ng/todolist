@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bao & Hien — Daily Reset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="configBanner">
+  ⚠ Firebase isn't configured yet — open <code>firebase-config.js</code> and fill in your project's keys.
+</div>
+
+<div id="landing" class="screen active">
+  <div class="landing-eyebrow">a small daily ritual</div>
+  <h1 class="landing-title">Two lists.<br>One <em>habit</em>.</h1>
+  <p class="landing-sub">Pick your name to see today's to-dos and mark off your exercises. Add a task for later and it'll wait quietly until its day comes.</p>
+  <div class="picker">
+    <div class="picker-card" tabindex="0" role="button" data-person="Bao">
+      <svg class="picker-sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V9" stroke="#3f5d47" stroke-width="1.6" stroke-linecap="round"/><path d="M12 13c0-4 3-6 7-6 0 4-3 6-7 6z" fill="#d99b3f" opacity="0.7"/><path d="M12 17c0-3.2-2.4-4.8-5.6-4.8 0 3.2 2.4 4.8 5.6 4.8z" fill="#3f5d47" opacity="0.7"/></svg>
+      <div class="picker-mark">PROFILE</div>
+      <div class="picker-name">Bao</div>
+      <div class="picker-hint">Open Bao's day →</div>
+    </div>
+    <div class="picker-card" tabindex="0" role="button" data-person="Hien">
+      <svg class="picker-sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V9" stroke="#3f5d47" stroke-width="1.6" stroke-linecap="round"/><path d="M12 13c0-4 3-6 7-6 0 4-3 6-7 6z" fill="#d99b3f" opacity="0.7"/><path d="M12 17c0-3.2-2.4-4.8-5.6-4.8 0 3.2 2.4 4.8 5.6 4.8z" fill="#3f5d47" opacity="0.7"/></svg>
+      <div class="picker-mark">PROFILE</div>
+      <div class="picker-name">Hien</div>
+      <div class="picker-hint">Open Hien's day →</div>
+    </div>
+  </div>
+</div>
+
+<div id="dashboard" class="screen">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="switch-link" id="switchBtn">← switch person</button>
+      <div class="date-tag" id="dateTag"></div>
+    </div>
+    <h2 class="greeting">Good day, <span class="who" id="whoName"></span></h2>
+
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">Today's to-do</h3>
+        <span class="card-count" id="notesCount"></span>
+      </div>
+      <div id="notesList"></div>
+      <div class="add-row">
+        <input type="text" id="noteInput" placeholder="Add something to do…" maxlength="140">
+        <input type="date" id="noteDateInput">
+        <button id="noteAddBtn">Add</button>
+      </div>
+    </div>
+
+    <details class="later" id="laterDetails">
+      <summary>Scheduled for later <span class="arrow">›</span></summary>
+      <div class="later-body" id="laterList"></div>
+    </details>
+
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">Exercise</h3>
+        <span class="card-count" id="exCount"></span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-label" id="progressLabel">0%</span>
+      </div>
+      <div id="exList"></div>
+      <div class="add-row">
+        <input type="text" id="exInput" placeholder="Add an exercise to your routine…" maxlength="80">
+        <button id="exAddBtn">Add</button>
+      </div>
+    </div>
+
+    <footer class="note">saved to Firestore · shared between Bao & Hien</footer>
+  </div>
+</div>
+
+<script type="module" src="firebase-config.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
