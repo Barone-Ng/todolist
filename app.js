@@ -50,8 +50,14 @@ document.getElementById('switchBtn').addEventListener('click', ()=>{
 
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  // force an instant jump to the top of the new section, after layout settles
+  requestAnimationFrame(()=>{
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
 }
 
 function openDashboard(person){
@@ -77,25 +83,29 @@ function openDashboard(person){
     notesCache = snap.docs.map(d=>({ id: d.id, ...d.data() }));
     renderNotes();
     renderLater();
-  });
+  }, err=> reportError('load tasks', err));
 
   const exQ = query(collection(db, 'exercises'), where('person','==', person));
   unsubEx = onSnapshot(exQ, async snap=>{
     exCache = snap.docs.map(d=>({ id: d.id, ...d.data() }));
     if(exCache.length === 0){
-      for(const name of DEFAULT_EXERCISES){
-        await addDoc(collection(db,'exercises'), { person, name, createdAt: Date.now() });
+      try{
+        for(const name of DEFAULT_EXERCISES){
+          await addDoc(collection(db,'exercises'), { person, name, createdAt: Date.now() });
+        }
+      }catch(err){
+        reportError('set up default exercises', err);
       }
       return; // snapshot will fire again with the new docs
     }
     renderExercises();
-  });
+  }, err=> reportError('load exercises', err));
 
   const exDoneRef = doc(db, 'exerciseDone', `${person}_${dateKey}`);
   unsubExDone = onSnapshot(exDoneRef, snap=>{
     exDoneIds = snap.exists() ? (snap.data().ids || []) : [];
     renderExercises();
-  });
+  }, err=> reportError('load exercise progress', err));
 }
 
 // ---------- Notes (today) ----------
@@ -124,18 +134,24 @@ async function addNote(){
   const text = input.value.trim();
   const targetDate = dateInput.value || dateKey;
   if(!text) return;
-  await addDoc(collection(db,'notes'), {
-    person: currentPerson, text, done:false, date: targetDate, createdAt: Date.now()
-  });
-  input.value = '';
-  dateInput.value = dateKey;
+  try{
+    await addDoc(collection(db,'notes'), {
+      person: currentPerson, text, done:false, date: targetDate, createdAt: Date.now()
+    });
+    input.value = '';
+    dateInput.value = dateKey;
+  }catch(err){
+    reportError('add task', err);
+  }
 }
 
 async function toggleNote(id, done){
-  await updateDoc(doc(db,'notes', id), { done: !done });
+  try{ await updateDoc(doc(db,'notes', id), { done: !done }); }
+  catch(err){ reportError('update task', err); }
 }
 async function deleteNote(id){
-  await deleteDoc(doc(db,'notes', id));
+  try{ await deleteDoc(doc(db,'notes', id)); }
+  catch(err){ reportError('delete task', err); }
 }
 
 // ---------- Scheduled for later ----------
@@ -189,22 +205,46 @@ async function addExercise(){
   const input = document.getElementById('exInput');
   const name = input.value.trim();
   if(!name) return;
-  await addDoc(collection(db,'exercises'), { person: currentPerson, name, createdAt: Date.now() });
-  input.value = '';
+  try{
+    await addDoc(collection(db,'exercises'), { person: currentPerson, name, createdAt: Date.now() });
+    input.value = '';
+  }catch(err){
+    reportError('add exercise', err);
+  }
 }
 
 async function toggleExercise(id){
-  const refDoc = doc(db, 'exerciseDone', `${currentPerson}_${dateKey}`);
-  const nextIds = exDoneIds.includes(id) ? exDoneIds.filter(x=>x!==id) : [...exDoneIds, id];
-  await setDoc(refDoc, { person: currentPerson, date: dateKey, ids: nextIds }, { merge:true });
+  try{
+    const refDoc = doc(db, 'exerciseDone', `${currentPerson}_${dateKey}`);
+    const nextIds = exDoneIds.includes(id) ? exDoneIds.filter(x=>x!==id) : [...exDoneIds, id];
+    await setDoc(refDoc, { person: currentPerson, date: dateKey, ids: nextIds }, { merge:true });
+  }catch(err){
+    reportError('update exercise', err);
+  }
 }
 
 async function deleteExercise(id){
-  await deleteDoc(doc(db,'exercises', id));
-  if(exDoneIds.includes(id)){
-    const refDoc = doc(db, 'exerciseDone', `${currentPerson}_${dateKey}`);
-    await setDoc(refDoc, { ids: exDoneIds.filter(x=>x!==id) }, { merge:true });
+  try{
+    await deleteDoc(doc(db,'exercises', id));
+    if(exDoneIds.includes(id)){
+      const refDoc = doc(db, 'exerciseDone', `${currentPerson}_${dateKey}`);
+      await setDoc(refDoc, { ids: exDoneIds.filter(x=>x!==id) }, { merge:true });
+    }
+  }catch(err){
+    reportError('delete exercise', err);
   }
+}
+
+function reportError(action, err){
+  console.error(`Failed to ${action}:`, err);
+  const code = err && err.code ? err.code : 'unknown-error';
+  let msg = `Couldn't ${action} (${code}).`;
+  if(code === 'permission-denied'){
+    msg += ' Your Firestore security rules are blocking writes — check them in the Firebase console.';
+  } else if(code === 'unavailable' || code === 'failed-precondition'){
+    msg += ' Firestore may not be enabled yet for this project.';
+  }
+  alert(msg);
 }
 
 // ---------- shared row builder ----------
