@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Bao & Hien — Daily Reset</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -59,6 +59,19 @@
       <summary>Scheduled for later <span class="arrow">›</span></summary>
       <div class="later-body" id="laterList"></div>
     </details>
+
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">Daily reminders</h3>
+        <span class="card-count" id="dailyCount"></span>
+      </div>
+      <p class="card-hint">These come back every day until you delete them.</p>
+      <div id="dailyList"></div>
+      <div class="add-row">
+        <input type="text" id="dailyInput" placeholder="Add a daily reminder…" maxlength="140">
+        <button id="dailyAddBtn">Add</button>
+      </div>
+    </div>
 
     <div class="card">
       <div class="card-head">
