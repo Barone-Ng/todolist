@@ -25,9 +25,13 @@ const DEFAULT_EXERCISES = ["20 squats","20 push-ups","1 min plank","10 min walk"
 let unsubNotes = null;
 let unsubEx = null;
 let unsubExDone = null;
+let unsubDaily = null;
+let unsubDailyDone = null;
 let notesCache = [];
 let exCache = [];
 let exDoneIds = [];
+let dailyCache = [];
+let dailyDoneIds = [];
 
 function fmtDate(k){
   const d = new Date(k + 'T00:00:00');
@@ -45,6 +49,8 @@ document.getElementById('switchBtn').addEventListener('click', ()=>{
   if(unsubNotes) unsubNotes();
   if(unsubEx) unsubEx();
   if(unsubExDone) unsubExDone();
+  if(unsubDaily) unsubDaily();
+  if(unsubDailyDone) unsubDailyDone();
   show('landing');
 });
 
@@ -71,12 +77,15 @@ function openDashboard(person){
   if(!isConfigured){
     document.getElementById('notesList').innerHTML = '<div class="empty-note">Connect Firebase to start saving tasks.</div>';
     document.getElementById('exList').innerHTML = '<div class="empty-note">Connect Firebase to start tracking exercises.</div>';
+    document.getElementById('dailyList').innerHTML = '<div class="empty-note">Connect Firebase to start saving reminders.</div>';
     return;
   }
 
   if(unsubNotes) unsubNotes();
   if(unsubEx) unsubEx();
   if(unsubExDone) unsubExDone();
+  if(unsubDaily) unsubDaily();
+  if(unsubDailyDone) unsubDailyDone();
 
   const notesQ = query(collection(db, 'notes'), where('person','==', person));
   unsubNotes = onSnapshot(notesQ, snap=>{
@@ -106,6 +115,18 @@ function openDashboard(person){
     exDoneIds = snap.exists() ? (snap.data().ids || []) : [];
     renderExercises();
   }, err=> reportError('load exercise progress', err));
+
+  const dailyQ = query(collection(db, 'dailyNotes'), where('person','==', person));
+  unsubDaily = onSnapshot(dailyQ, snap=>{
+    dailyCache = snap.docs.map(d=>({ id: d.id, ...d.data() }));
+    renderDaily();
+  }, err=> reportError('load daily reminders', err));
+
+  const dailyDoneRef = doc(db, 'dailyNoteDone', `${person}_${dateKey}`);
+  unsubDailyDone = onSnapshot(dailyDoneRef, snap=>{
+    dailyDoneIds = snap.exists() ? (snap.data().ids || []) : [];
+    renderDaily();
+  }, err=> reportError('load daily reminder progress', err));
 }
 
 // ---------- Notes (today) ----------
@@ -177,6 +198,59 @@ function renderLater(){
     }
     container.appendChild(buildRow(item, 'note'));
   });
+}
+
+// ---------- Daily reminders (persist until deleted, reset each day) ----------
+function renderDaily(){
+  const container = document.getElementById('dailyList');
+  container.innerHTML = '';
+  if(dailyCache.length === 0){
+    container.innerHTML = '<div class="empty-note">No daily reminders yet — add one below.</div>';
+  }
+  dailyCache.forEach(item=>{
+    container.appendChild(buildRow({ id:item.id, text:item.text, done: dailyDoneIds.includes(item.id) }, 'daily'));
+  });
+  const total = dailyCache.length;
+  const doneCount = dailyCache.filter(i=>dailyDoneIds.includes(i.id)).length;
+  document.getElementById('dailyCount').textContent = total ? `${doneCount}/${total} done` : '';
+}
+
+document.getElementById('dailyAddBtn').addEventListener('click', addDaily);
+document.getElementById('dailyInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addDaily(); });
+
+async function addDaily(){
+  if(!isConfigured) return;
+  const input = document.getElementById('dailyInput');
+  const text = input.value.trim();
+  if(!text) return;
+  try{
+    await addDoc(collection(db,'dailyNotes'), { person: currentPerson, text, createdAt: Date.now() });
+    input.value = '';
+  }catch(err){
+    reportError('add daily reminder', err);
+  }
+}
+
+async function toggleDaily(id){
+  try{
+    const refDoc = doc(db, 'dailyNoteDone', `${currentPerson}_${dateKey}`);
+    const nextIds = dailyDoneIds.includes(id) ? dailyDoneIds.filter(x=>x!==id) : [...dailyDoneIds, id];
+    await setDoc(refDoc, { person: currentPerson, date: dateKey, ids: nextIds }, { merge:true });
+  }catch(err){
+    reportError('update daily reminder', err);
+  }
+}
+
+async function deleteDaily(id){
+  try{
+    await deleteDoc(doc(db,'dailyNotes', id));
+    if(dailyDoneIds.includes(id)){
+      const refDoc = doc(db, 'dailyNoteDone', `${currentPerson}_${dateKey}`);
+      await setDoc(refDoc, { ids: dailyDoneIds.filter(x=>x!==id) }, { merge:true });
+    }
+  }catch(err){
+    reportError('delete daily reminder', err);
+  }
 }
 
 // ---------- Exercises ----------
@@ -256,7 +330,9 @@ function buildRow(item, kind){
   cb.className = 'checkbox' + (item.done ? ' checked' : '');
   cb.setAttribute('aria-label', item.done ? 'Mark as not done' : 'Mark as done');
   cb.addEventListener('click', ()=>{
-    if(kind==='note') toggleNote(item.id, item.done); else toggleExercise(item.id);
+    if(kind==='note') toggleNote(item.id, item.done);
+    else if(kind==='exercise') toggleExercise(item.id);
+    else if(kind==='daily') toggleDaily(item.id);
   });
 
   const text = document.createElement('div');
@@ -268,7 +344,9 @@ function buildRow(item, kind){
   del.setAttribute('aria-label','Remove');
   del.textContent = '×';
   del.addEventListener('click', ()=>{
-    if(kind==='note') deleteNote(item.id); else deleteExercise(item.id);
+    if(kind==='note') deleteNote(item.id);
+    else if(kind==='exercise') deleteExercise(item.id);
+    else if(kind==='daily') deleteDaily(item.id);
   });
 
   row.appendChild(cb);
