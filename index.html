@@ -16,6 +16,7 @@
     --ink-soft: #3a5a9a;
     --red: #cf3a2c;
     --highlight: #cdead0;
+    --highlight-2: #c7e6f5;
     --shadow: rgba(29,60,120,0.14);
   }
 
@@ -31,28 +32,47 @@
       radial-gradient(circle at 90% 80%, rgba(255,255,255,0.4), transparent 40%);
     font-family: 'Be Vietnam Pro', sans-serif;
     color: var(--ink);
-    display:flex;
-    justify-content:center;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Single flex child of body -> this is what actually gets centered.
-     Everything else (status banner, title, day notes) lives inside it,
-     stacked in a column, so nothing can sit "beside" it and skew the centering. */
-  .app{
+  /* ---------- overall two-person split ---------- */
+  .split{
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content:center;
+    align-items:flex-start;
+    gap: 8px 40px;
+    padding: 40px 16px;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+
+  .person-col{
     width:100%;
-    max-width: 480px;
-    margin: 40px auto;
-    padding: 0 16px;
+    max-width: 460px;
     display:flex;
     flex-direction: column;
+  }
+
+  /* Hien's column gets a blue highlight accent instead of green, so the two are easy to tell apart at a glance */
+  .person-col.hien{ --highlight: var(--highlight-2); }
+
+  .col-divider{
+    align-self: stretch;
+    width:1px;
+    background: rgba(29,60,120,0.14);
+    margin: 6px 0;
+  }
+  @media (max-width: 940px){
+    .col-divider{ display:none; }
   }
 
   h1{
     font-family:'Be Vietnam Pro', sans-serif;
     font-weight:800;
-    font-size: 1.9rem;
-    margin: 0 0 20px;
+    font-size: 1.7rem;
+    margin: 0 0 18px;
     color: var(--ink);
     text-align:center;
     letter-spacing: 0.2px;
@@ -69,6 +89,7 @@
     text-align:center;
     margin-bottom: 16px;
   }
+  .status-banner[hidden]{ display:none; }
 
   /* ---------- one card per day, styled like a separate torn-off note ---------- */
   .day-note{
@@ -128,7 +149,7 @@
     cursor:pointer;
   }
   .day-date-label{
-    font-size: 1.22rem;
+    font-size: 1.2rem;
     padding: 1px 8px 3px;
     background: linear-gradient(to bottom, transparent 55%, var(--highlight) 55%);
     color: var(--ink);
@@ -179,7 +200,7 @@
     align-items:flex-start;
     gap:10px;
     padding: 5px 0;
-    font-size: 1.12rem;
+    font-size: 1.1rem;
     line-height:1.35;
   }
 
@@ -206,6 +227,26 @@
     content:"";
     position:absolute;
     inset:-11px;
+  }
+
+  /* ---------- overdue: undone task whose day has already passed ---------- */
+  @keyframes overdue-pulse{
+    0%, 100% { box-shadow: 0 0 0 0 rgba(207,58,44,0.45); transform: rotate(-1.2deg) scale(1); }
+    50%      { box-shadow: 0 0 0 5px rgba(207,58,44,0);   transform: rotate(-1.2deg) scale(1.06); }
+  }
+  .box.overdue{
+    border-color: var(--red);
+    animation: overdue-pulse 1.7s ease-in-out infinite;
+  }
+  .task.overdue .task-text{ color: var(--red); }
+  .task.overdue .task-text::after{
+    content: " (trễ hạn)";
+    font-size: 0.78em;
+    font-style: italic;
+    opacity: 0.75;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .box.overdue{ animation: none; }
   }
 
   .task-text{
@@ -240,7 +281,7 @@
     border-bottom: 1.5px dashed #b9c6de;
     background:transparent;
     font-family:'Be Vietnam Pro', sans-serif;
-    font-size: 1.08rem;
+    font-size: 1.06rem;
     color: var(--ink);
     padding: 2px 2px;
     min-width:0;
@@ -271,7 +312,7 @@
   }
   .add-day button{
     font-family:'Be Vietnam Pro', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     color: var(--ink-soft);
     background: transparent;
     border: 2px dashed #b9c6de;
@@ -281,27 +322,41 @@
   }
   .add-day button:hover{ border-color: var(--ink-soft); color: var(--ink); }
 
+  @media (max-width: 940px){
+    .split{ gap: 44px 0; padding: 24px 16px; }
+    .person-col{ max-width: 480px; }
+  }
+
   @media (max-width: 480px){
-    .app{ margin: 20px auto; }
+    .split{ padding: 16px 10px; gap: 28px 0; }
     .day-note-inner{ padding: 18px 16px 18px 38px; }
     .day-note-inner::before{ left: 10px; }
-    h1{ font-size: 1.6rem; margin-bottom: 16px; }
-    .day-date-label{ font-size: 1.08rem; }
-    .task{ font-size: 1.02rem; }
+    h1{ font-size: 1.5rem; margin-bottom: 14px; }
+    .day-date-label{ font-size: 1.05rem; }
+    .task{ font-size: 1rem; }
     .add-task-row{ padding-left: 30px; }
-    .add-task-row input{ font-size: 1.05rem; }
+    .add-task-row input{ font-size: 1.02rem; }
   }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <h1>Việc Cần Làm</h1>
-  <div id="status" class="status-banner" style="display:none;"></div>
-  <div id="days"></div>
-  <div class="add-day">
-    <button id="addDayBtn">+ thêm ngày</button>
-  </div>
+<div class="split">
+  <section class="person-col bao">
+    <h1>Bảo</h1>
+    <div class="status-banner" id="status-bao" hidden></div>
+    <div id="days-bao"></div>
+    <div class="add-day"><button data-person="bao">+ thêm ngày</button></div>
+  </section>
+
+  <div class="col-divider"></div>
+
+  <section class="person-col hien">
+    <h1>Hiền</h1>
+    <div class="status-banner" id="status-hien" hidden></div>
+    <div id="days-hien"></div>
+    <div class="add-day"><button data-person="hien">+ thêm ngày</button></div>
+  </section>
 </div>
 
 <script type="module">
@@ -323,20 +378,25 @@
     appId: "1:219541712256:web:f7d492517f970b4c602565"
   };
 
-  const statusEl = document.getElementById('status');
-  const daysEl = document.getElementById('days');
+  const PEOPLE = ['bao', 'hien'];
+  const els = {
+    bao:  { status: document.getElementById('status-bao'),  days: document.getElementById('days-bao') },
+    hien: { status: document.getElementById('status-hien'), days: document.getElementById('days-hien') }
+  };
 
   let db = null;
   let docRef = null;
-  let state = { days: [] };
+  let state = { bao: { days: [] }, hien: { days: [] } };
 
   const WEEKDAY_NAMES = ['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
 
-  function showStatus(msg){
-    statusEl.style.display = 'block';
-    statusEl.textContent = msg;
+  function showStatus(person, msg){
+    els[person].status.hidden = false;
+    els[person].status.textContent = msg;
   }
-  function hideStatus(){ statusEl.style.display = 'none'; }
+  function hideStatus(person){ els[person].status.hidden = true; }
+  function showStatusAll(msg){ PEOPLE.forEach(p => showStatus(p, msg)); }
+  function hideStatusAll(){ PEOPLE.forEach(hideStatus); }
 
   function isConfigured(){
     return firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_");
@@ -349,6 +409,10 @@
   function todayISO(){
     const d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function isPastDate(iso){
+    return !!iso && iso < todayISO();
   }
 
   function formatDayLabel(iso){
@@ -364,9 +428,9 @@
   function hashRot(id){
     let h = 0;
     for (let i=0;i<id.length;i++){ h = (h*31 + id.charCodeAt(i)) % 1000; }
-    const a = -2.4 + (h % 10) * 0.12;       // ~ -2.4..-1.2
-    const b = 1.0 + ((h >> 3) % 10) * 0.12; // ~ 1.0..2.2
-    const c = -0.9 + ((h >> 6) % 18) * 0.1; // ~ -0.9..0.8
+    const a = -2.4 + (h % 10) * 0.12;
+    const b = 1.0 + ((h >> 3) % 10) * 0.12;
+    const c = -0.9 + ((h >> 6) % 18) * 0.1;
     return { a, b, c };
   }
 
@@ -375,14 +439,18 @@
     try{
       await setDoc(docRef, state);
     }catch(e){
-      showStatus("Không lưu được: " + e.message);
+      showStatusAll("Không lưu được: " + e.message);
     }
   }
 
-  function render(){
+  function renderPerson(person){
+    const daysEl = els[person].days;
+    const personState = state[person];
     daysEl.innerHTML = '';
-    state.days.forEach(day => {
+
+    personState.days.forEach(day => {
       if (!day.date) day.date = todayISO(); // migrate legacy days with no date
+      const dayIsPast = isPastDate(day.date);
 
       const rot = hashRot(day.id);
 
@@ -419,14 +487,13 @@
       dateInput.tabIndex = -1;
       dateInput.addEventListener('change', () => {
         day.date = dateInput.value;
-        render(); saveState();
+        renderPerson(person); saveState();
       });
 
       function openPicker(){
         if (typeof dateInput.showPicker === 'function'){
           try { dateInput.showPicker(); return; } catch(e){ /* fall through */ }
         }
-        // fallback for browsers without showPicker(): make it briefly interactive and focus it
         dateInput.style.pointerEvents = 'auto';
         dateInput.style.opacity = '0.01';
         dateInput.focus();
@@ -436,7 +503,6 @@
           dateInput.style.opacity = '0';
         }, 300);
       }
-
       dateWrap.addEventListener('click', openPicker);
 
       dateWrap.appendChild(label);
@@ -450,8 +516,8 @@
       delDayBtn.textContent = '✕';
       delDayBtn.title = 'Xoá ngày này';
       delDayBtn.addEventListener('click', () => {
-        state.days = state.days.filter(d => d.id !== day.id);
-        render(); saveState();
+        personState.days = personState.days.filter(d => d.id !== day.id);
+        renderPerson(person); saveState();
       });
       actions.appendChild(delDayBtn);
 
@@ -470,17 +536,21 @@
       }
 
       day.tasks.forEach(task => {
+        const overdue = dayIsPast && task.state === 'pending';
         const li = document.createElement('li');
-        li.className = 'task' + (task.state === 'done' ? ' done' : '') + (task.state === 'cancelled' ? ' cancelled' : '');
+        li.className = 'task'
+          + (task.state === 'done' ? ' done' : '')
+          + (task.state === 'cancelled' ? ' cancelled' : '')
+          + (overdue ? ' overdue' : '');
 
         const box = document.createElement('div');
-        box.className = 'box';
+        box.className = 'box' + (overdue ? ' overdue' : '');
         box.textContent = task.state === 'done' ? '✓' : (task.state === 'cancelled' ? '×' : '');
         box.addEventListener('click', () => {
           task.state = task.state === 'pending' ? 'done'
                      : task.state === 'done' ? 'cancelled'
                      : 'pending';
-          render(); saveState();
+          renderPerson(person); saveState();
         });
 
         const text = document.createElement('span');
@@ -493,7 +563,7 @@
         del.title = 'Xoá việc này';
         del.addEventListener('click', () => {
           day.tasks = day.tasks.filter(t => t.id !== task.id);
-          render(); saveState();
+          renderPerson(person); saveState();
         });
 
         li.appendChild(box);
@@ -516,7 +586,7 @@
         if (!v) return;
         day.tasks.push({ id: uid(), text: v, state: 'pending' });
         input.value = '';
-        render(); saveState();
+        renderPerson(person); saveState();
       }
       addBtn.addEventListener('click', addTask);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
@@ -530,23 +600,29 @@
     });
   }
 
-  document.getElementById('addDayBtn').addEventListener('click', () => {
-    state.days.push({ id: uid(), date: todayISO(), tasks: [] });
-    render(); saveState();
+  function renderAll(){ PEOPLE.forEach(renderPerson); }
+
+  document.querySelectorAll('.add-day button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const person = btn.dataset.person;
+      state[person].days.push({ id: uid(), date: todayISO(), tasks: [] });
+      renderPerson(person); saveState();
+    });
   });
 
   async function start(){
     if (!isConfigured()){
-      showStatus('Chưa kết nối Firebase — điền firebaseConfig trong file index.html để lưu dữ liệu.');
+      showStatusAll('Chưa kết nối Firebase — điền firebaseConfig trong file index.html để lưu dữ liệu.');
       state = {
-        days: [
+        bao: { days: [
           { id: uid(), date: todayISO(), tasks: [
             { id: uid(), text: 'Máu', state: 'done' },
             { id: uid(), text: 'Đại cương', state: 'pending' }
           ]}
-        ]
+        ]},
+        hien: { days: [] }
       };
-      render();
+      renderAll();
       return;
     }
 
@@ -557,19 +633,27 @@
 
       const snap = await getDoc(docRef);
       if (!snap.exists()){
-        await setDoc(docRef, { days: [] });
+        await setDoc(docRef, { bao: { days: [] }, hien: { days: [] } });
       }
 
       onSnapshot(docRef, (s) => {
-        const data = s.data();
-        state = data && data.days ? data : { days: [] };
-        render();
-        hideStatus();
+        const data = s.data() || {};
+        // migrate old single-list schema ({ days: [...] }) into Bảo's column, once
+        if (!data.bao && !data.hien && Array.isArray(data.days)){
+          state = { bao: { days: data.days }, hien: { days: [] } };
+        } else {
+          state = {
+            bao:  data.bao  && Array.isArray(data.bao.days)  ? data.bao  : { days: [] },
+            hien: data.hien && Array.isArray(data.hien.days) ? data.hien : { days: [] }
+          };
+        }
+        renderAll();
+        hideStatusAll();
       }, (err) => {
-        showStatus('Lỗi kết nối Firestore: ' + err.message);
+        showStatusAll('Lỗi kết nối Firestore: ' + err.message);
       });
     }catch(e){
-      showStatus('Lỗi khởi tạo Firebase: ' + e.message);
+      showStatusAll('Lỗi khởi tạo Firebase: ' + e.message);
     }
   }
 
