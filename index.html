@@ -1,99 +1,494 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Bao & Hien — Daily Reset</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ Việc Cần Làm</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #fbf8f0;
+    --paper-edge: #f1ecdf;
+    --line: #dfe6da;
+    --ink: #1d3c78;
+    --ink-soft: #3a5a9a;
+    --red: #cf3a2c;
+    --highlight: #cdead0;
+    --highlight-2: #c7e6f5;
+    --shadow: rgba(29,60,120,0.14);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{ height:100%; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background: #e9e4d6;
+    background-image:
+      radial-gradient(circle at 10% 10%, rgba(255,255,255,0.5), transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(255,255,255,0.4), transparent 40%);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    color: var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .notebook{
+    width:100%;
+    max-width: 480px;
+    position:relative;
+  }
+
+  /* stacked pages behind, like the photo's messy desk of papers */
+  .notebook::before, .notebook::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: var(--paper-edge);
+    border-radius: 6px;
+    z-index:0;
+  }
+  .notebook::before{ transform: rotate(-2.4deg) translateY(6px); }
+  .notebook::after{ transform: rotate(1.6deg) translateY(3px); }
+
+  .page{
+    position:relative;
+    z-index:1;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 37px,
+        var(--line) 38px
+      );
+    border-radius: 6px;
+    box-shadow: 0 18px 34px var(--shadow), 0 2px 0 rgba(0,0,0,0.04);
+    padding: 30px 26px 30px 54px;
+    min-height: 300px;
+  }
+
+  /* hole punches down the left, like a small pocket notepad */
+  .page::before{
+    content:"";
+    position:absolute;
+    top:28px; bottom:28px; left:20px;
+    width:12px;
+    background-image: radial-gradient(circle, #cfc9b8 0 5px, transparent 5.5px);
+    background-size: 12px 46px;
+    background-repeat: repeat-y;
+    opacity:0.6;
+  }
+
+  h1{
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-weight:800;
+    font-size: 1.9rem;
+    margin: 0 0 22px;
+    color: var(--ink);
+    text-align:center;
+    letter-spacing: 0.2px;
+  }
+
+  .day{
+    margin-bottom: 26px;
+  }
+
+  .day-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom: 10px;
+  }
+
+  .day-title{
+    display:inline-flex;
+    align-items:baseline;
+    gap:8px;
+    font-size: 1.28rem;
+    padding: 1px 8px 3px;
+    background: linear-gradient(to bottom, transparent 55%, var(--highlight) 55%);
+    border: none;
+    background-color: transparent;
+    color: var(--ink);
+    font-family: 'Be Vietnam Pro', sans-serif;
+  }
+  .day-title:focus{ outline: 1px dashed var(--ink-soft); background: linear-gradient(to bottom, transparent 55%, var(--highlight) 55%); }
+
+  .day-actions{ display:flex; gap:6px; }
+
+  .icon-btn{
+    background:none;
+    border:none;
+    color: var(--ink-soft);
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-size:1.05rem;
+    cursor:pointer;
+    opacity:0.55;
+    padding:2px 4px;
+    line-height:1;
+  }
+  .icon-btn:hover{ opacity:1; }
+
+  .tasks{ list-style:none; margin:0; padding:0; }
+
+  .task{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding: 5px 0;
+    font-size: 1.15rem;
+    line-height:1.35;
+  }
+
+  .box{
+    flex: 0 0 auto;
+    width: 24px; height:24px;
+    margin-top:3px;
+    border: 2.4px solid var(--ink);
+    border-radius: 3px 4px 3px 5px;
+    transform: rotate(-1.2deg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    background: transparent;
+    color: var(--red);
+    font-size: 1.05rem;
+    font-weight:bold;
+    user-select:none;
+    flex-shrink:0;
+    /* invisible padding so the tap target is comfortably >=44px on touch, without growing the visible box */
+    background-clip: content-box;
+    position:relative;
+  }
+  .box::before{
+    content:"";
+    position:absolute;
+    inset:-11px;
+  }
+
+  .task-text{
+    flex:1;
+    word-break: break-word;
+    cursor: default;
+  }
+  .task.done .task-text{ color: var(--ink-soft); }
+  .task.cancelled .task-text{ text-decoration: line-through; text-decoration-thickness: 2px; opacity:0.55; }
+
+  .del{
+    opacity:0;
+    background:none;border:none;
+    color: var(--red);
+    font-family:'Be Vietnam Pro', sans-serif;
+    cursor:pointer;
+    font-size:1rem;
+    padding: 2px 4px;
+  }
+  .task:hover .del{ opacity:0.6; }
+  .del:hover{ opacity:1 !important; }
+
+  .add-task-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 6px 0 0 32px;
+  }
+  .add-task-row input{
+    flex:1;
+    border:none;
+    border-bottom: 1.5px dashed #b9c6de;
+    background:transparent;
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    padding: 2px 2px;
+  }
+  .add-task-row input:focus{ outline:none; border-bottom-color: var(--ink); }
+  .add-task-row button{
+    background:none; border:none;
+    color: var(--ink-soft);
+    font-family:'Be Vietnam Pro', sans-serif;
+    cursor:pointer;
+    font-size:1.4rem;
+    line-height:1;
+    opacity:0.7;
+  }
+  .add-task-row button:hover{ opacity:1; }
+
+  .add-day{
+    margin-top: 6px;
+    display:flex;
+    justify-content:center;
+  }
+  .add-day button{
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 2px dashed #b9c6de;
+    border-radius: 8px;
+    padding: 8px 18px;
+    cursor:pointer;
+  }
+  .add-day button:hover{ border-color: var(--ink-soft); color: var(--ink); }
+
+  .empty-day{
+    font-size: 1rem;
+    color: #8a95ab;
+    padding-left: 32px;
+    font-style: italic;
+  }
+
+  .status-banner{
+    max-width:480px;
+    margin: 0 auto 14px;
+    background: #fff7e6;
+    border: 1.5px dashed #d8b25c;
+    color:#7a5c17;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-align:center;
+  }
+
+  @media (max-width: 480px){
+    body{ padding: 16px 10px; align-items: flex-start; }
+    .page{ padding: 22px 14px 22px 38px; border-radius: 4px; }
+    .page::before{ left: 10px; }
+    .notebook::before, .notebook::after{ border-radius: 4px; }
+    h1{ font-size: 1.6rem; margin-bottom: 18px; }
+    .day-title{ font-size: 1.1rem; }
+    .task{ font-size: 1rem; }
+    .add-task-row{ padding-left: 30px; }
+    .add-task-row input{ font-size: 1.05rem; }
+  }
+</style>
 </head>
 <body>
 
-<div id="configBanner">
-  ⚠ Firebase isn't configured yet — open <code>firebase-config.js</code> and fill in your project's keys.
+<div style="width:100%; max-width:480px; margin:0 auto;">
+  <div id="status" class="status-banner" style="display:none;"></div>
 </div>
 
-<div id="landing" class="screen active">
-  <div class="landing-eyebrow">a small daily ritual</div>
-  <h1 class="landing-title">Two lists.<br>One <em>habit</em>.</h1>
-  <p class="landing-sub">Pick your name to see today's to-dos and mark off your exercises. Add a task for later and it'll wait quietly until its day comes.</p>
-  <div class="picker">
-    <div class="picker-card" tabindex="0" role="button" data-person="Bao">
-      <svg class="picker-sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V9" stroke="#3f5d47" stroke-width="1.6" stroke-linecap="round"/><path d="M12 13c0-4 3-6 7-6 0 4-3 6-7 6z" fill="#d99b3f" opacity="0.7"/><path d="M12 17c0-3.2-2.4-4.8-5.6-4.8 0 3.2 2.4 4.8 5.6 4.8z" fill="#3f5d47" opacity="0.7"/></svg>
-      <div class="picker-mark">PROFILE</div>
-      <div class="picker-name">Bao</div>
-      <div class="picker-hint">Open Bao's day →</div>
-    </div>
-    <div class="picker-card" tabindex="0" role="button" data-person="Hien">
-      <svg class="picker-sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V9" stroke="#3f5d47" stroke-width="1.6" stroke-linecap="round"/><path d="M12 13c0-4 3-6 7-6 0 4-3 6-7 6z" fill="#d99b3f" opacity="0.7"/><path d="M12 17c0-3.2-2.4-4.8-5.6-4.8 0 3.2 2.4 4.8 5.6 4.8z" fill="#3f5d47" opacity="0.7"/></svg>
-      <div class="picker-mark">PROFILE</div>
-      <div class="picker-name">Hien</div>
-      <div class="picker-hint">Open Hien's day →</div>
+<div class="notebook">
+  <div class="page">
+    <h1>Việc Cần Làm</h1>
+    <div id="days"></div>
+    <div class="add-day">
+      <button id="addDayBtn">+ thêm ngày</button>
     </div>
   </div>
 </div>
 
-<div id="dashboard" class="screen">
-  <div class="wrap">
-    <div class="top-row">
-      <button class="switch-link" id="switchBtn">← switch person</button>
-      <div class="date-tag" id="dateTag"></div>
-    </div>
-    <h2 class="greeting">Good day, <span class="who" id="whoName"></span></h2>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, doc, onSnapshot, setDoc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-    <div class="card">
-      <div class="card-head">
-        <h3 class="card-title">Today's to-do</h3>
-        <span class="card-count" id="notesCount"></span>
-      </div>
-      <div id="notesList"></div>
-      <div class="add-row">
-        <input type="text" id="noteInput" placeholder="Add something to do…" maxlength="140">
-        <input type="date" id="noteDateInput">
-        <button id="noteAddBtn">Add</button>
-      </div>
-    </div>
+  // ---------------------------------------------------------------
+  // 1) PASTE YOUR OWN FIREBASE CONFIG HERE
+  //    Firebase console -> Project settings -> General -> Your apps -> SDK setup and config
+  // ---------------------------------------------------------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyDUxAPbBWVMxtexFn44-dKMSgmPM8CQAJ8",
+    authDomain: "todo-list-d0500.firebaseapp.com",
+    projectId: "todo-list-d0500",
+    storageBucket: "todo-list-d0500.firebasestorage.app",
+    messagingSenderId: "219541712256",
+    appId: "1:219541712256:web:f7d492517f970b4c602565"
+  };
 
-    <details class="later" id="laterDetails">
-      <summary>Scheduled for later <span class="arrow">›</span></summary>
-      <div class="later-body" id="laterList"></div>
-    </details>
+  const statusEl = document.getElementById('status');
+  const daysEl = document.getElementById('days');
 
-    <div class="card">
-      <div class="card-head">
-        <h3 class="card-title">Daily reminders</h3>
-        <span class="card-count" id="dailyCount"></span>
-      </div>
-      <p class="card-hint">These come back every day until you delete them.</p>
-      <div id="dailyList"></div>
-      <div class="add-row">
-        <input type="text" id="dailyInput" placeholder="Add a daily reminder…" maxlength="140">
-        <button id="dailyAddBtn">Add</button>
-      </div>
-    </div>
+  let db = null;
+  let docRef = null;
+  let state = { days: [] };          // in-memory mirror of Firestore doc
+  let ready = false;
 
-    <div class="card">
-      <div class="card-head">
-        <h3 class="card-title">Exercise</h3>
-        <span class="card-count" id="exCount"></span>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-        <span class="progress-label" id="progressLabel">0%</span>
-      </div>
-      <div id="exList"></div>
-      <div class="add-row">
-        <input type="text" id="exInput" placeholder="Add an exercise to your routine…" maxlength="80">
-        <button id="exAddBtn">Add</button>
-      </div>
-    </div>
+  function showStatus(msg){
+    statusEl.style.display = 'block';
+    statusEl.textContent = msg;
+  }
+  function hideStatus(){ statusEl.style.display = 'none'; }
 
-    <footer class="note">saved to Firestore · shared between Bao & Hien</footer>
-  </div>
-</div>
+  function isConfigured(){
+    return firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_");
+  }
 
-<script type="module" src="firebase-config.js"></script>
-<script type="module" src="app.js"></script>
+  function uid(){
+    return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+  }
+
+  async function saveState(){
+    if (!docRef) return;
+    try{
+      await setDoc(docRef, state);
+    }catch(e){
+      showStatus("Không lưu được: " + e.message);
+    }
+  }
+
+  function render(){
+    daysEl.innerHTML = '';
+    state.days.forEach(day => {
+      const dayDiv = document.createElement('div');
+      dayDiv.className = 'day';
+
+      const header = document.createElement('div');
+      header.className = 'day-header';
+
+      const title = document.createElement('input');
+      title.className = 'day-title';
+      title.value = day.label;
+      title.addEventListener('change', () => {
+        day.label = title.value;
+        saveState();
+      });
+
+      const actions = document.createElement('div');
+      actions.className = 'day-actions';
+      const delDayBtn = document.createElement('button');
+      delDayBtn.className = 'icon-btn';
+      delDayBtn.textContent = '✕';
+      delDayBtn.title = 'Xoá ngày này';
+      delDayBtn.addEventListener('click', () => {
+        state.days = state.days.filter(d => d.id !== day.id);
+        render(); saveState();
+      });
+      actions.appendChild(delDayBtn);
+
+      header.appendChild(title);
+      header.appendChild(actions);
+      dayDiv.appendChild(header);
+
+      const list = document.createElement('ul');
+      list.className = 'tasks';
+
+      if (day.tasks.length === 0){
+        const empty = document.createElement('div');
+        empty.className = 'empty-day';
+        empty.textContent = 'chưa có việc gì...';
+        list.appendChild(empty);
+      }
+
+      day.tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.className = 'task' + (task.state === 'done' ? ' done' : '') + (task.state === 'cancelled' ? ' cancelled' : '');
+
+        const box = document.createElement('div');
+        box.className = 'box';
+        box.textContent = task.state === 'done' ? '✓' : (task.state === 'cancelled' ? '×' : '');
+        box.addEventListener('click', () => {
+          task.state = task.state === 'pending' ? 'done'
+                     : task.state === 'done' ? 'cancelled'
+                     : 'pending';
+          render(); saveState();
+        });
+
+        const text = document.createElement('span');
+        text.className = 'task-text';
+        text.textContent = task.text;
+
+        const del = document.createElement('button');
+        del.className = 'del';
+        del.textContent = '✕';
+        del.title = 'Xoá việc này';
+        del.addEventListener('click', () => {
+          day.tasks = day.tasks.filter(t => t.id !== task.id);
+          render(); saveState();
+        });
+
+        li.appendChild(box);
+        li.appendChild(text);
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+
+      dayDiv.appendChild(list);
+
+      const addRow = document.createElement('div');
+      addRow.className = 'add-task-row';
+      const input = document.createElement('input');
+      input.placeholder = 'thêm việc mới...';
+      const addBtn = document.createElement('button');
+      addBtn.textContent = '+';
+
+      function addTask(){
+        const v = input.value.trim();
+        if (!v) return;
+        day.tasks.push({ id: uid(), text: v, state: 'pending' });
+        input.value = '';
+        render(); saveState();
+      }
+      addBtn.addEventListener('click', addTask);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+      addRow.appendChild(input);
+      addRow.appendChild(addBtn);
+      dayDiv.appendChild(addRow);
+
+      daysEl.appendChild(dayDiv);
+    });
+  }
+
+  document.getElementById('addDayBtn').addEventListener('click', () => {
+    const today = new Date();
+    const label = today.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    state.days.push({ id: uid(), label, tasks: [] });
+    render(); saveState();
+  });
+
+  async function start(){
+    if (!isConfigured()){
+      showStatus('Chưa kết nối Firebase — điền firebaseConfig trong file index.html để lưu dữ liệu.');
+      // still let the page render with local (non-persisted) demo data
+      state = {
+        days: [
+          { id: uid(), label: 'CN - 13/9', tasks: [
+            { id: uid(), text: 'Máu', state: 'done' },
+            { id: uid(), text: 'Đại cương', state: 'pending' }
+          ]}
+        ]
+      };
+      render();
+      return;
+    }
+
+    try{
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      docRef = doc(db, 'todo', 'main');
+
+      const snap = await getDoc(docRef);
+      if (!snap.exists()){
+        await setDoc(docRef, { days: [] });
+      }
+
+      onSnapshot(docRef, (s) => {
+        const data = s.data();
+        state = data && data.days ? data : { days: [] };
+        render();
+        ready = true;
+        hideStatus();
+      }, (err) => {
+        showStatus('Lỗi kết nối Firestore: ' + err.message);
+      });
+    }catch(e){
+      showStatus('Lỗi khởi tạo Firebase: ' + e.message);
+    }
+  }
+
+  start();
+</script>
 </body>
 </html>
