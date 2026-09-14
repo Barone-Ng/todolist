@@ -123,6 +123,9 @@
   .day-date-wrap{
     position:relative;
     display:inline-flex;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
   }
   .day-date-label{
     font-size: 1.22rem;
@@ -132,16 +135,26 @@
     white-space:nowrap;
   }
   .day-date-label.placeholder{ color: #8a95ab; font-style: italic; background:none; }
+  .cal-btn{
+    background:none;
+    border:none;
+    font-size: 1rem;
+    line-height:1;
+    opacity:0.55;
+    cursor:pointer;
+    padding: 2px;
+  }
+  .day-date-wrap:hover .cal-btn{ opacity:0.9; }
+  /* the real input stays in the DOM (so its value + native picker work) but is visually tucked away */
   .day-date-input{
     position:absolute;
-    inset:0;
+    left:0; top:0;
+    width:1px; height:1px;
     opacity:0;
-    width:100%;
-    height:100%;
     border:none;
     padding:0;
     margin:0;
-    cursor:pointer;
+    pointer-events:none;
   }
 
   .day-actions{ display:flex; gap:6px; }
@@ -393,16 +406,41 @@
       label.className = 'day-date-label' + (formatted ? '' : ' placeholder');
       label.textContent = formatted || 'chọn ngày...';
 
+      const calBtn = document.createElement('button');
+      calBtn.type = 'button';
+      calBtn.className = 'cal-btn';
+      calBtn.title = 'Chọn ngày';
+      calBtn.textContent = '📅';
+
       const dateInput = document.createElement('input');
       dateInput.type = 'date';
       dateInput.className = 'day-date-input';
       dateInput.value = day.date || '';
+      dateInput.tabIndex = -1;
       dateInput.addEventListener('change', () => {
         day.date = dateInput.value;
         render(); saveState();
       });
 
+      function openPicker(){
+        if (typeof dateInput.showPicker === 'function'){
+          try { dateInput.showPicker(); return; } catch(e){ /* fall through */ }
+        }
+        // fallback for browsers without showPicker(): make it briefly interactive and focus it
+        dateInput.style.pointerEvents = 'auto';
+        dateInput.style.opacity = '0.01';
+        dateInput.focus();
+        dateInput.click();
+        setTimeout(() => {
+          dateInput.style.pointerEvents = 'none';
+          dateInput.style.opacity = '0';
+        }, 300);
+      }
+
+      dateWrap.addEventListener('click', openPicker);
+
       dateWrap.appendChild(label);
+      dateWrap.appendChild(calBtn);
       dateWrap.appendChild(dateInput);
 
       const actions = document.createElement('div');
