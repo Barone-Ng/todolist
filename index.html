@@ -16,12 +16,10 @@
     --ink-soft: #3a5a9a;
     --red: #cf3a2c;
     --highlight: #cdead0;
-    --highlight-2: #c7e6f5;
     --shadow: rgba(29,60,120,0.14);
   }
 
   *{ box-sizing: border-box; }
-
   html, body{ height:100%; }
 
   body{
@@ -34,20 +32,50 @@
     font-family: 'Be Vietnam Pro', sans-serif;
     color: var(--ink);
     display:flex;
-    align-items:center;
     justify-content:center;
-    padding: 32px 16px;
     -webkit-tap-highlight-color: transparent;
   }
 
-  .notebook{
+  /* Single flex child of body -> this is what actually gets centered.
+     Everything else (status banner, title, day notes) lives inside it,
+     stacked in a column, so nothing can sit "beside" it and skew the centering. */
+  .app{
     width:100%;
     max-width: 480px;
-    position:relative;
+    margin: 40px auto;
+    padding: 0 16px;
+    display:flex;
+    flex-direction: column;
   }
 
-  /* stacked pages behind, like the photo's messy desk of papers */
-  .notebook::before, .notebook::after{
+  h1{
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-weight:800;
+    font-size: 1.9rem;
+    margin: 0 0 20px;
+    color: var(--ink);
+    text-align:center;
+    letter-spacing: 0.2px;
+  }
+
+  .status-banner{
+    background: #fff7e6;
+    border: 1.5px dashed #d8b25c;
+    color:#7a5c17;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-align:center;
+    margin-bottom: 16px;
+  }
+
+  /* ---------- one card per day, styled like a separate torn-off note ---------- */
+  .day-note{
+    position:relative;
+    margin-bottom: 30px;
+  }
+  .day-note::before, .day-note::after{
     content:"";
     position:absolute;
     inset:0;
@@ -55,12 +83,13 @@
     border-radius: 6px;
     z-index:0;
   }
-  .notebook::before{ transform: rotate(-2.4deg) translateY(6px); }
-  .notebook::after{ transform: rotate(1.6deg) translateY(3px); }
+  .day-note::before{ transform: rotate(var(--rot-a, -2deg)) translateY(5px); }
+  .day-note::after{ transform: rotate(var(--rot-b, 1.4deg)) translateY(2px); }
 
-  .page{
+  .day-note-inner{
     position:relative;
     z-index:1;
+    transform: rotate(var(--rot-c, 0deg));
     background:
       repeating-linear-gradient(
         var(--paper),
@@ -68,35 +97,19 @@
         var(--line) 38px
       );
     border-radius: 6px;
-    box-shadow: 0 18px 34px var(--shadow), 0 2px 0 rgba(0,0,0,0.04);
-    padding: 30px 26px 30px 54px;
-    min-height: 300px;
+    box-shadow: 0 14px 26px var(--shadow), 0 2px 0 rgba(0,0,0,0.04);
+    padding: 22px 22px 22px 48px;
   }
 
-  /* hole punches down the left, like a small pocket notepad */
-  .page::before{
+  .day-note-inner::before{
     content:"";
     position:absolute;
-    top:28px; bottom:28px; left:20px;
-    width:12px;
-    background-image: radial-gradient(circle, #cfc9b8 0 5px, transparent 5.5px);
-    background-size: 12px 46px;
+    top:22px; bottom:22px; left:18px;
+    width:11px;
+    background-image: radial-gradient(circle, #cfc9b8 0 4.5px, transparent 5px);
+    background-size: 11px 42px;
     background-repeat: repeat-y;
     opacity:0.6;
-  }
-
-  h1{
-    font-family:'Be Vietnam Pro', sans-serif;
-    font-weight:800;
-    font-size: 1.9rem;
-    margin: 0 0 22px;
-    color: var(--ink);
-    text-align:center;
-    letter-spacing: 0.2px;
-  }
-
-  .day{
-    margin-bottom: 26px;
   }
 
   .day-header{
@@ -107,19 +120,29 @@
     margin-bottom: 10px;
   }
 
-  .day-title{
+  .day-date-wrap{
+    position:relative;
     display:inline-flex;
-    align-items:baseline;
-    gap:8px;
-    font-size: 1.28rem;
+  }
+  .day-date-label{
+    font-size: 1.22rem;
     padding: 1px 8px 3px;
     background: linear-gradient(to bottom, transparent 55%, var(--highlight) 55%);
-    border: none;
-    background-color: transparent;
     color: var(--ink);
-    font-family: 'Be Vietnam Pro', sans-serif;
+    white-space:nowrap;
   }
-  .day-title:focus{ outline: 1px dashed var(--ink-soft); background: linear-gradient(to bottom, transparent 55%, var(--highlight) 55%); }
+  .day-date-label.placeholder{ color: #8a95ab; font-style: italic; background:none; }
+  .day-date-input{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    width:100%;
+    height:100%;
+    border:none;
+    padding:0;
+    margin:0;
+    cursor:pointer;
+  }
 
   .day-actions{ display:flex; gap:6px; }
 
@@ -143,7 +166,7 @@
     align-items:flex-start;
     gap:10px;
     padding: 5px 0;
-    font-size: 1.15rem;
+    font-size: 1.12rem;
     line-height:1.35;
   }
 
@@ -164,8 +187,6 @@
     font-weight:bold;
     user-select:none;
     flex-shrink:0;
-    /* invisible padding so the tap target is comfortably >=44px on touch, without growing the visible box */
-    background-clip: content-box;
     position:relative;
   }
   .box::before{
@@ -206,9 +227,10 @@
     border-bottom: 1.5px dashed #b9c6de;
     background:transparent;
     font-family:'Be Vietnam Pro', sans-serif;
-    font-size: 1.1rem;
+    font-size: 1.08rem;
     color: var(--ink);
     padding: 2px 2px;
+    min-width:0;
   }
   .add-task-row input:focus{ outline:none; border-bottom-color: var(--ink); }
   .add-task-row button{
@@ -222,10 +244,17 @@
   }
   .add-task-row button:hover{ opacity:1; }
 
+  .empty-day{
+    font-size: 1rem;
+    color: #8a95ab;
+    padding-left: 32px;
+    font-style: italic;
+  }
+
   .add-day{
-    margin-top: 6px;
     display:flex;
     justify-content:center;
+    margin-top: 4px;
   }
   .add-day button{
     font-family:'Be Vietnam Pro', sans-serif;
@@ -239,34 +268,13 @@
   }
   .add-day button:hover{ border-color: var(--ink-soft); color: var(--ink); }
 
-  .empty-day{
-    font-size: 1rem;
-    color: #8a95ab;
-    padding-left: 32px;
-    font-style: italic;
-  }
-
-  .status-banner{
-    max-width:480px;
-    margin: 0 auto 14px;
-    background: #fff7e6;
-    border: 1.5px dashed #d8b25c;
-    color:#7a5c17;
-    font-family: system-ui, sans-serif;
-    font-size: 0.85rem;
-    padding: 10px 14px;
-    border-radius: 8px;
-    text-align:center;
-  }
-
   @media (max-width: 480px){
-    body{ padding: 16px 10px; align-items: flex-start; }
-    .page{ padding: 22px 14px 22px 38px; border-radius: 4px; }
-    .page::before{ left: 10px; }
-    .notebook::before, .notebook::after{ border-radius: 4px; }
-    h1{ font-size: 1.6rem; margin-bottom: 18px; }
-    .day-title{ font-size: 1.1rem; }
-    .task{ font-size: 1rem; }
+    .app{ margin: 20px auto; }
+    .day-note-inner{ padding: 18px 16px 18px 38px; }
+    .day-note-inner::before{ left: 10px; }
+    h1{ font-size: 1.6rem; margin-bottom: 16px; }
+    .day-date-label{ font-size: 1.08rem; }
+    .task{ font-size: 1.02rem; }
     .add-task-row{ padding-left: 30px; }
     .add-task-row input{ font-size: 1.05rem; }
   }
@@ -274,17 +282,12 @@
 </head>
 <body>
 
-<div style="width:100%; max-width:480px; margin:0 auto;">
+<div class="app">
+  <h1>Việc Cần Làm</h1>
   <div id="status" class="status-banner" style="display:none;"></div>
-</div>
-
-<div class="notebook">
-  <div class="page">
-    <h1>Việc Cần Làm</h1>
-    <div id="days"></div>
-    <div class="add-day">
-      <button id="addDayBtn">+ thêm ngày</button>
-    </div>
+  <div id="days"></div>
+  <div class="add-day">
+    <button id="addDayBtn">+ thêm ngày</button>
   </div>
 </div>
 
@@ -299,12 +302,12 @@
   //    Firebase console -> Project settings -> General -> Your apps -> SDK setup and config
   // ---------------------------------------------------------------
   const firebaseConfig = {
-    apiKey: "AIzaSyDUxAPbBWVMxtexFn44-dKMSgmPM8CQAJ8",
-    authDomain: "todo-list-d0500.firebaseapp.com",
-    projectId: "todo-list-d0500",
-    storageBucket: "todo-list-d0500.firebasestorage.app",
-    messagingSenderId: "219541712256",
-    appId: "1:219541712256:web:f7d492517f970b4c602565"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
   };
 
   const statusEl = document.getElementById('status');
@@ -312,8 +315,9 @@
 
   let db = null;
   let docRef = null;
-  let state = { days: [] };          // in-memory mirror of Firestore doc
-  let ready = false;
+  let state = { days: [] };
+
+  const WEEKDAY_NAMES = ['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
 
   function showStatus(msg){
     statusEl.style.display = 'block';
@@ -329,6 +333,30 @@
     return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   }
 
+  function todayISO(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function formatDayLabel(iso){
+    if (!iso) return null;
+    const d = new Date(iso + 'T00:00:00');
+    if (isNaN(d)) return null;
+    const wd = WEEKDAY_NAMES[d.getDay()];
+    const dm = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
+    return `${wd}, ${dm}`;
+  }
+
+  // stable, deterministic "randomness" per day id so cards don't jitter on re-render
+  function hashRot(id){
+    let h = 0;
+    for (let i=0;i<id.length;i++){ h = (h*31 + id.charCodeAt(i)) % 1000; }
+    const a = -2.4 + (h % 10) * 0.12;       // ~ -2.4..-1.2
+    const b = 1.0 + ((h >> 3) % 10) * 0.12; // ~ 1.0..2.2
+    const c = -0.9 + ((h >> 6) % 18) * 0.1; // ~ -0.9..0.8
+    return { a, b, c };
+  }
+
   async function saveState(){
     if (!docRef) return;
     try{
@@ -341,19 +369,41 @@
   function render(){
     daysEl.innerHTML = '';
     state.days.forEach(day => {
-      const dayDiv = document.createElement('div');
-      dayDiv.className = 'day';
+      if (!day.date) day.date = todayISO(); // migrate legacy days with no date
+
+      const rot = hashRot(day.id);
+
+      const card = document.createElement('div');
+      card.className = 'day-note';
+      card.style.setProperty('--rot-a', rot.a + 'deg');
+      card.style.setProperty('--rot-b', rot.b + 'deg');
+      card.style.setProperty('--rot-c', rot.c + 'deg');
+
+      const inner = document.createElement('div');
+      inner.className = 'day-note-inner';
 
       const header = document.createElement('div');
       header.className = 'day-header';
 
-      const title = document.createElement('input');
-      title.className = 'day-title';
-      title.value = day.label;
-      title.addEventListener('change', () => {
-        day.label = title.value;
-        saveState();
+      const dateWrap = document.createElement('div');
+      dateWrap.className = 'day-date-wrap';
+
+      const label = document.createElement('span');
+      const formatted = formatDayLabel(day.date);
+      label.className = 'day-date-label' + (formatted ? '' : ' placeholder');
+      label.textContent = formatted || 'chọn ngày...';
+
+      const dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.className = 'day-date-input';
+      dateInput.value = day.date || '';
+      dateInput.addEventListener('change', () => {
+        day.date = dateInput.value;
+        render(); saveState();
       });
+
+      dateWrap.appendChild(label);
+      dateWrap.appendChild(dateInput);
 
       const actions = document.createElement('div');
       actions.className = 'day-actions';
@@ -367,9 +417,9 @@
       });
       actions.appendChild(delDayBtn);
 
-      header.appendChild(title);
+      header.appendChild(dateWrap);
       header.appendChild(actions);
-      dayDiv.appendChild(header);
+      inner.appendChild(header);
 
       const list = document.createElement('ul');
       list.className = 'tasks';
@@ -414,7 +464,7 @@
         list.appendChild(li);
       });
 
-      dayDiv.appendChild(list);
+      inner.appendChild(list);
 
       const addRow = document.createElement('div');
       addRow.className = 'add-task-row';
@@ -435,26 +485,24 @@
 
       addRow.appendChild(input);
       addRow.appendChild(addBtn);
-      dayDiv.appendChild(addRow);
+      inner.appendChild(addRow);
 
-      daysEl.appendChild(dayDiv);
+      card.appendChild(inner);
+      daysEl.appendChild(card);
     });
   }
 
   document.getElementById('addDayBtn').addEventListener('click', () => {
-    const today = new Date();
-    const label = today.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
-    state.days.push({ id: uid(), label, tasks: [] });
+    state.days.push({ id: uid(), date: todayISO(), tasks: [] });
     render(); saveState();
   });
 
   async function start(){
     if (!isConfigured()){
       showStatus('Chưa kết nối Firebase — điền firebaseConfig trong file index.html để lưu dữ liệu.');
-      // still let the page render with local (non-persisted) demo data
       state = {
         days: [
-          { id: uid(), label: 'CN - 13/9', tasks: [
+          { id: uid(), date: todayISO(), tasks: [
             { id: uid(), text: 'Máu', state: 'done' },
             { id: uid(), text: 'Đại cương', state: 'pending' }
           ]}
@@ -478,7 +526,6 @@
         const data = s.data();
         state = data && data.days ? data : { days: [] };
         render();
-        ready = true;
         hideStatus();
       }, (err) => {
         showStatus('Lỗi kết nối Firestore: ' + err.message);
