@@ -8,334 +8,116 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --paper: #fbf8f0;
-    --paper-edge: #f1ecdf;
-    --line: #dfe6da;
-    --ink: #1d3c78;
-    --ink-soft: #3a5a9a;
-    --red: #cf3a2c;
-    --highlight: #cdead0;
-    --highlight-2: #c7e6f5;
-    --shadow: rgba(29,60,120,0.14);
-  }
+  :root{--paper:#fbf8f0;--paper-edge:#f1ecdf;--line:#dfe6da;--ink:#1d3c78;--ink-soft:#3a5a9a;--red:#cf3a2c;--highlight:#cdead0;--highlight-2:#c7e6f5;--shadow:rgba(29,60,120,0.14);}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;min-height:100vh;background:#e9e4d6;background-image:radial-gradient(circle at 10% 10%,rgba(255,255,255,.5),transparent 40%),radial-gradient(circle at 90% 80%,rgba(255,255,255,.4),transparent 40%);font-family:'Be Vietnam Pro',sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent;}
+  .split{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:8px 40px;padding:40px 16px;max-width:1040px;margin:0 auto;}
+  .person-col{width:100%;max-width:460px;display:flex;flex-direction:column;}
+  .person-col.hien{--highlight:var(--highlight-2);}
+  .col-divider{align-self:stretch;width:1px;background:rgba(29,60,120,.14);margin:6px 0;}
+  @media (max-width:940px){.col-divider{display:none;}}
+  h1{font-weight:800;font-size:1.7rem;margin:0 0 18px;color:var(--ink);text-align:center;letter-spacing:.2px;}
+  .status-banner{background:#fff7e6;border:1.5px dashed #d8b25c;color:#7a5c17;font-family:system-ui,sans-serif;font-size:.85rem;padding:10px 14px;border-radius:8px;text-align:center;margin-bottom:16px;}
+  .status-banner[hidden]{display:none;}
 
-  *{ box-sizing: border-box; }
-  html, body{ height:100%; }
+  /* drawer */
+  .drawer{margin-bottom:22px;background:rgba(255,255,255,.55);border:2px dashed #b9c6de;border-radius:10px;padding:8px 14px;}
+  .drawer summary{cursor:pointer;font-weight:600;font-size:1rem;color:var(--ink-soft);list-style:none;}
+  .drawer summary::-webkit-details-marker{display:none;}
+  .drawer-body{margin-top:16px;}
+  .drawer-note{font-size:.8rem;color:#8a95ab;font-style:italic;margin:0 0 14px;}
+  .drawer .day-note{margin-bottom:22px;}
 
-  body{
-    margin:0;
-    min-height:100vh;
-    background: #e9e4d6;
-    background-image:
-      radial-gradient(circle at 10% 10%, rgba(255,255,255,0.5), transparent 40%),
-      radial-gradient(circle at 90% 80%, rgba(255,255,255,0.4), transparent 40%);
-    font-family: 'Be Vietnam Pro', sans-serif;
-    color: var(--ink);
-    -webkit-tap-highlight-color: transparent;
-  }
+  /* panels (exercise / reward) */
+  .panel{background:var(--paper);border-radius:8px;box-shadow:0 10px 22px var(--shadow);padding:16px 18px;margin-bottom:26px;border-top:5px solid #7fb6e0;}
+  .panel h2{margin:0 0 4px;font-size:1.12rem;font-weight:700;}
+  .panel .sub{font-size:.82rem;color:var(--ink-soft);margin-bottom:10px;}
+  .lvbar{display:flex;gap:5px;margin:8px 0 4px;}
+  .lvbar span{flex:1;text-align:center;font-size:.75rem;font-weight:700;padding:3px 0;border-radius:6px;background:#e4ebf5;color:#8a95ab;}
+  .lvbar span.on{background:#7fb6e0;color:#fff;}
+  .lvbar span.past{background:#cdead0;color:#2d6b3c;}
+  .prog{height:9px;background:#e4ebf5;border-radius:6px;overflow:hidden;margin:6px 0 12px;}
+  .prog i{display:block;height:100%;background:linear-gradient(90deg,#7fb6e0,#5aa97a);}
+  .ex-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);}
+  .ex-ico{font-size:1.7rem;width:42px;text-align:center;flex:none;}
+  .ex-info{flex:1;min-width:0;}
+  .ex-name{font-weight:600;font-size:.95rem;}
+  .ex-hint{font-size:.74rem;color:var(--ink-soft);line-height:1.3;}
+  .ex-sq{display:flex;gap:6px;flex:none;}
+  .sq{width:28px;height:28px;border:2.4px solid var(--ink);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--red);font-weight:bold;cursor:pointer;user-select:none;position:relative;}
+  .sq::before{content:"";position:absolute;inset:-7px;}
+  .sq.on{background:#eaf6ec;}
+  .btn{font-family:inherit;font-size:.92rem;font-weight:600;color:var(--ink);background:var(--highlight);border:none;border-radius:8px;padding:9px 14px;cursor:pointer;margin-top:10px;width:100%;}
+  .btn.off{background:#e4ebf5;color:#6b7a99;}
+  .btn.gold{background:linear-gradient(90deg,#ffd45e,#ff9d5c);color:#5b2a00;animation:glow 1.6s ease-in-out infinite;}
+  @keyframes glow{50%{box-shadow:0 0 0 6px rgba(255,170,60,.25);}}
+  .msg{font-size:.85rem;margin-top:8px;color:#2d6b3c;font-weight:600;}
+  .warn{font-size:.85rem;margin-top:8px;padding:7px 10px;border-radius:8px;background:#fff1e0;color:#9a4b00;}
+  .warn.bad{background:#fde6e3;color:var(--red);}
+  .stat{display:flex;justify-content:space-between;font-size:.9rem;margin:4px 0;}
 
-  /* ---------- overall two-person split ---------- */
-  .split{
-    display:flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content:center;
-    align-items:flex-start;
-    gap: 8px 40px;
-    padding: 40px 16px;
-    max-width: 1040px;
-    margin: 0 auto;
-  }
+  /* wheel modal */
+  .modal{position:fixed;inset:0;background:rgba(20,30,60,.65);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .modal.show{display:flex;}
+  .wheel-card{background:var(--paper);border-radius:16px;padding:20px 16px;max-width:380px;width:100%;text-align:center;}
+  .wheel-wrap{position:relative;width:min(300px,78vw);aspect-ratio:1;margin:10px auto 14px;}
+  .wheel-wrap .ptr{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:1.8rem;z-index:2;}
+  #wheel{width:100%;height:100%;transition:transform 5s cubic-bezier(.12,.6,.1,1);}
+  .result{font-size:1.15rem;font-weight:800;min-height:1.6em;margin-bottom:6px;}
 
-  .person-col{
-    width:100%;
-    max-width: 460px;
-    display:flex;
-    flex-direction: column;
-  }
-
-  /* Hien's column gets a blue highlight accent instead of green, so the two are easy to tell apart at a glance */
-  .person-col.hien{ --highlight: var(--highlight-2); }
-
-  .col-divider{
-    align-self: stretch;
-    width:1px;
-    background: rgba(29,60,120,0.14);
-    margin: 6px 0;
-  }
-  @media (max-width: 940px){
-    .col-divider{ display:none; }
-  }
-
-  h1{
-    font-family:'Be Vietnam Pro', sans-serif;
-    font-weight:800;
-    font-size: 1.7rem;
-    margin: 0 0 18px;
-    color: var(--ink);
-    text-align:center;
-    letter-spacing: 0.2px;
-  }
-
-  .status-banner{
-    background: #fff7e6;
-    border: 1.5px dashed #d8b25c;
-    color:#7a5c17;
-    font-family: system-ui, sans-serif;
-    font-size: 0.85rem;
-    padding: 10px 14px;
-    border-radius: 8px;
-    text-align:center;
-    margin-bottom: 16px;
-  }
-  .status-banner[hidden]{ display:none; }
-
-  /* ---------- one card per day, styled like a separate torn-off note ---------- */
-  .day-note{
-    position:relative;
-    margin-bottom: 30px;
-  }
-  .day-note::before, .day-note::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background: var(--paper-edge);
-    border-radius: 6px;
-    z-index:0;
-  }
-  .day-note::before{ transform: rotate(var(--rot-a, -2deg)) translateY(5px); }
-  .day-note::after{ transform: rotate(var(--rot-b, 1.4deg)) translateY(2px); }
-
-  .day-note-inner{
-    position:relative;
-    z-index:1;
-    transform: rotate(var(--rot-c, 0deg));
-    background:
-      repeating-linear-gradient(
-        var(--paper),
-        var(--paper) 37px,
-        var(--line) 38px
-      );
-    border-radius: 6px;
-    box-shadow: 0 14px 26px var(--shadow), 0 2px 0 rgba(0,0,0,0.04);
-    padding: 22px 22px 22px 48px;
-  }
-
-  .day-note-inner::before{
-    content:"";
-    position:absolute;
-    top:22px; bottom:22px; left:18px;
-    width:11px;
-    background-image: radial-gradient(circle, #cfc9b8 0 4.5px, transparent 5px);
-    background-size: 11px 42px;
-    background-repeat: repeat-y;
-    opacity:0.6;
-  }
-
-  .day-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom: 10px;
-  }
-
-  .day-date-wrap{
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    cursor:pointer;
-  }
-  .day-date-label{
-    font-size: 1.2rem;
-    padding: 1px 8px 3px;
-    background: linear-gradient(to bottom, transparent 55%, var(--highlight) 55%);
-    color: var(--ink);
-    white-space:nowrap;
-  }
-  .day-date-label.placeholder{ color: #8a95ab; font-style: italic; background:none; }
-  .cal-btn{
-    background:none;
-    border:none;
-    font-size: 1rem;
-    line-height:1;
-    opacity:0.55;
-    cursor:pointer;
-    padding: 2px;
-  }
-  .day-date-wrap:hover .cal-btn{ opacity:0.9; }
-  /* the real input stays in the DOM (so its value + native picker work) but is visually tucked away */
-  .day-date-input{
-    position:absolute;
-    left:0; top:0;
-    width:1px; height:1px;
-    opacity:0;
-    border:none;
-    padding:0;
-    margin:0;
-    pointer-events:none;
-  }
-
-  .day-actions{ display:flex; gap:6px; }
-
-  .icon-btn{
-    background:none;
-    border:none;
-    color: var(--ink-soft);
-    font-family:'Be Vietnam Pro', sans-serif;
-    font-size:1.05rem;
-    cursor:pointer;
-    opacity:0.55;
-    padding:2px 4px;
-    line-height:1;
-  }
-  .icon-btn:hover{ opacity:1; }
-
-  .tasks{ list-style:none; margin:0; padding:0; }
-
-  .task{
-    display:flex;
-    align-items:flex-start;
-    gap:10px;
-    padding: 5px 0;
-    font-size: 1.1rem;
-    line-height:1.35;
-  }
-
-  .box{
-    flex: 0 0 auto;
-    width: 24px; height:24px;
-    margin-top:3px;
-    border: 2.4px solid var(--ink);
-    border-radius: 3px 4px 3px 5px;
-    transform: rotate(-1.2deg);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    background: transparent;
-    color: var(--red);
-    font-size: 1.05rem;
-    font-weight:bold;
-    user-select:none;
-    flex-shrink:0;
-    position:relative;
-  }
-  .box::before{
-    content:"";
-    position:absolute;
-    inset:-11px;
-  }
-
-  /* ---------- overdue: undone task whose day has already passed ---------- */
-  @keyframes overdue-pulse{
-    0%, 100% { box-shadow: 0 0 0 0 rgba(207,58,44,0.45); transform: rotate(-1.2deg) scale(1); }
-    50%      { box-shadow: 0 0 0 5px rgba(207,58,44,0);   transform: rotate(-1.2deg) scale(1.06); }
-  }
-  .box.overdue{
-    border-color: var(--red);
-    animation: overdue-pulse 1.7s ease-in-out infinite;
-  }
-  .task.overdue .task-text{ color: var(--red); }
-  .task.overdue .task-text::after{
-    content: " (trễ hạn)";
-    font-size: 0.78em;
-    font-style: italic;
-    opacity: 0.75;
-  }
-  @media (prefers-reduced-motion: reduce){
-    .box.overdue{ animation: none; }
-  }
-
-  .task-text{
-    flex:1;
-    word-break: break-word;
-    cursor: default;
-  }
-  .task.done .task-text{ color: var(--ink-soft); }
-  .task.cancelled .task-text{ text-decoration: line-through; text-decoration-thickness: 2px; opacity:0.55; }
-
-  .del{
-    opacity:0;
-    background:none;border:none;
-    color: var(--red);
-    font-family:'Be Vietnam Pro', sans-serif;
-    cursor:pointer;
-    font-size:1rem;
-    padding: 2px 4px;
-  }
-  .task:hover .del{ opacity:0.6; }
-  .del:hover{ opacity:1 !important; }
-
-  .add-task-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding: 6px 0 0 32px;
-  }
-  .add-task-row input{
-    flex:1;
-    border:none;
-    border-bottom: 1.5px dashed #b9c6de;
-    background:transparent;
-    font-family:'Be Vietnam Pro', sans-serif;
-    font-size: 1.06rem;
-    color: var(--ink);
-    padding: 2px 2px;
-    min-width:0;
-  }
-  .add-task-row input:focus{ outline:none; border-bottom-color: var(--ink); }
-  .add-task-row button{
-    background:none; border:none;
-    color: var(--ink-soft);
-    font-family:'Be Vietnam Pro', sans-serif;
-    cursor:pointer;
-    font-size:1.4rem;
-    line-height:1;
-    opacity:0.7;
-  }
-  .add-task-row button:hover{ opacity:1; }
-
-  .empty-day{
-    font-size: 1rem;
-    color: #8a95ab;
-    padding-left: 32px;
-    font-style: italic;
-  }
-
-  .add-day{
-    display:flex;
-    justify-content:center;
-    margin-top: 4px;
-  }
-  .add-day button{
-    font-family:'Be Vietnam Pro', sans-serif;
-    font-size: 1.02rem;
-    color: var(--ink-soft);
-    background: transparent;
-    border: 2px dashed #b9c6de;
-    border-radius: 8px;
-    padding: 8px 18px;
-    cursor:pointer;
-  }
-  .add-day button:hover{ border-color: var(--ink-soft); color: var(--ink); }
-
-  @media (max-width: 940px){
-    .split{ gap: 44px 0; padding: 24px 16px; }
-    .person-col{ max-width: 480px; }
-  }
-
-  @media (max-width: 480px){
-    .split{ padding: 16px 10px; gap: 28px 0; }
-    .day-note-inner{ padding: 18px 16px 18px 38px; }
-    .day-note-inner::before{ left: 10px; }
-    h1{ font-size: 1.5rem; margin-bottom: 14px; }
-    .day-date-label{ font-size: 1.05rem; }
-    .task{ font-size: 1rem; }
-    .add-task-row{ padding-left: 30px; }
-    .add-task-row input{ font-size: 1.02rem; }
+  .day-note{position:relative;margin-bottom:30px;}
+  .day-note::before,.day-note::after{content:"";position:absolute;inset:0;background:var(--paper-edge);border-radius:6px;z-index:0;}
+  .day-note::before{transform:rotate(var(--rot-a,-2deg)) translateY(5px);}
+  .day-note::after{transform:rotate(var(--rot-b,1.4deg)) translateY(2px);}
+  .day-note-inner{position:relative;z-index:1;transform:rotate(var(--rot-c,0deg));background:repeating-linear-gradient(var(--paper),var(--paper) 37px,var(--line) 38px);border-radius:6px;box-shadow:0 14px 26px var(--shadow),0 2px 0 rgba(0,0,0,.04);padding:22px 22px 22px 48px;}
+  .day-note-inner::before{content:"";position:absolute;top:22px;bottom:22px;left:18px;width:11px;background-image:radial-gradient(circle,#cfc9b8 0 4.5px,transparent 5px);background-size:11px 42px;background-repeat:repeat-y;opacity:.6;}
+  .day-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .day-date-wrap{position:relative;display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
+  .day-date-label{font-size:1.2rem;padding:1px 8px 3px;background:linear-gradient(to bottom,transparent 55%,var(--highlight) 55%);color:var(--ink);white-space:nowrap;}
+  .day-date-label.placeholder{color:#8a95ab;font-style:italic;background:none;}
+  .cal-btn{background:none;border:none;font-size:1rem;line-height:1;opacity:.55;cursor:pointer;padding:2px;}
+  .day-date-wrap:hover .cal-btn{opacity:.9;}
+  .day-date-input{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;border:none;padding:0;margin:0;pointer-events:none;}
+  .day-actions{display:flex;gap:6px;}
+  .icon-btn{background:none;border:none;color:var(--ink-soft);font-family:inherit;font-size:1.05rem;cursor:pointer;opacity:.55;padding:2px 4px;line-height:1;}
+  .icon-btn:hover{opacity:1;}
+  .tasks{list-style:none;margin:0;padding:0;}
+  .task{display:flex;align-items:flex-start;gap:10px;padding:5px 0;font-size:1.1rem;line-height:1.35;}
+  .box{flex:0 0 auto;width:24px;height:24px;margin-top:3px;border:2.4px solid var(--ink);border-radius:3px 4px 3px 5px;transform:rotate(-1.2deg);display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;color:var(--red);font-size:1.05rem;font-weight:bold;user-select:none;position:relative;}
+  .box::before{content:"";position:absolute;inset:-11px;}
+  @keyframes overdue-pulse{0%,100%{box-shadow:0 0 0 0 rgba(207,58,44,.45);transform:rotate(-1.2deg) scale(1);}50%{box-shadow:0 0 0 5px rgba(207,58,44,0);transform:rotate(-1.2deg) scale(1.06);}}
+  .box.overdue{border-color:var(--red);animation:overdue-pulse 1.7s ease-in-out infinite;}
+  .task.overdue .task-text{color:var(--red);}
+  .task.overdue .task-text::after{content:" (trễ hạn)";font-size:.78em;font-style:italic;opacity:.75;}
+  .task.late .task-text::after{content:" (làm trễ)";font-size:.78em;font-style:italic;color:#c77a00;}
+  @media (prefers-reduced-motion:reduce){.box.overdue,.btn.gold{animation:none;}}
+  .task-text{flex:1;word-break:break-word;cursor:default;}
+  .task.done .task-text{color:var(--ink-soft);}
+  .task.cancelled .task-text{text-decoration:line-through;text-decoration-thickness:2px;opacity:.55;}
+  .del{opacity:0;background:none;border:none;color:var(--red);font-family:inherit;cursor:pointer;font-size:1rem;padding:2px 4px;}
+  .task:hover .del{opacity:.6;}
+  .del:hover{opacity:1 !important;}
+  .add-task-row{display:flex;align-items:center;gap:10px;padding:6px 0 0 32px;}
+  .add-task-row input{flex:1;border:none;border-bottom:1.5px dashed #b9c6de;background:transparent;font-family:inherit;font-size:1.06rem;color:var(--ink);padding:2px;min-width:0;}
+  .add-task-row input:focus{outline:none;border-bottom-color:var(--ink);}
+  .add-task-row button{background:none;border:none;color:var(--ink-soft);font-family:inherit;cursor:pointer;font-size:1.4rem;line-height:1;opacity:.7;}
+  .add-task-row button:hover{opacity:1;}
+  .empty-day{font-size:1rem;color:#8a95ab;padding-left:32px;font-style:italic;}
+  .add-day{display:flex;justify-content:center;margin-top:4px;}
+  .add-day button{font-family:inherit;font-size:1.02rem;color:var(--ink-soft);background:transparent;border:2px dashed #b9c6de;border-radius:8px;padding:8px 18px;cursor:pointer;}
+  .add-day button:hover{border-color:var(--ink-soft);color:var(--ink);}
+  @media (max-width:940px){.split{gap:44px 0;padding:24px 16px;}.person-col{max-width:480px;}}
+  @media (max-width:480px){
+    .split{padding:16px 10px;gap:28px 0;}
+    .day-note-inner{padding:18px 16px 18px 38px;}
+    .day-note-inner::before{left:10px;}
+    h1{font-size:1.5rem;margin-bottom:14px;}
+    .day-date-label{font-size:1.05rem;}
+    .task{font-size:1rem;}
+    .add-task-row{padding-left:30px;}
+    .add-task-row input{font-size:1.02rem;}
+    .sq{width:26px;height:26px;}
   }
 </style>
 </head>
@@ -345,6 +127,7 @@
   <section class="person-col bao">
     <h1>Bảo</h1>
     <div class="status-banner" id="status-bao" hidden></div>
+    <details class="drawer" id="drawer-bao"><summary>🗄️ Ngăn kéo (<span class="cnt">0</span>)</summary><div class="drawer-body"></div></details>
     <div id="days-bao"></div>
     <div class="add-day"><button data-person="bao">+ thêm ngày</button></div>
   </section>
@@ -354,21 +137,27 @@
   <section class="person-col hien">
     <h1>Hiền</h1>
     <div class="status-banner" id="status-hien" hidden></div>
+    <details class="drawer" id="drawer-hien"><summary>🗄️ Ngăn kéo (<span class="cnt">0</span>)</summary><div class="drawer-body"></div></details>
+    <div id="hien-extra"></div>
     <div id="days-hien"></div>
     <div class="add-day"><button data-person="hien">+ thêm ngày</button></div>
   </section>
 </div>
 
+<div class="modal" id="modal">
+  <div class="wheel-card">
+    <h2 style="margin:0">🎁 Vòng quay may mắn</h2>
+    <div class="wheel-wrap"><div class="ptr">🔻</div><svg id="wheel" viewBox="-100 -100 200 200"></svg></div>
+    <div class="result" id="result"></div>
+    <button class="btn" id="spinGo">QUAY!</button>
+    <button class="btn off" id="spinClose">Đóng</button>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import {
-    getFirestore, doc, onSnapshot, setDoc, getDoc
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-  // ---------------------------------------------------------------
-  // 1) PASTE YOUR OWN FIREBASE CONFIG HERE
-  //    Firebase console -> Project settings -> General -> Your apps -> SDK setup and config
-  // ---------------------------------------------------------------
   const firebaseConfig = {
     apiKey: "AIzaSyDUxAPbBWVMxtexFn44-dKMSgmPM8CQAJ8",
     authDomain: "todo-list-d0500.firebaseapp.com",
@@ -378,285 +167,349 @@
     appId: "1:219541712256:web:f7d492517f970b4c602565"
   };
 
-  const PEOPLE = ['bao', 'hien'];
+  const PEOPLE = ['bao','hien'];
   const els = {
-    bao:  { status: document.getElementById('status-bao'),  days: document.getElementById('days-bao') },
-    hien: { status: document.getElementById('status-hien'), days: document.getElementById('days-hien') }
+    bao:  { status: document.getElementById('status-bao'),  days: document.getElementById('days-bao'),  drawer: document.getElementById('drawer-bao') },
+    hien: { status: document.getElementById('status-hien'), days: document.getElementById('days-hien'), drawer: document.getElementById('drawer-hien') }
   };
 
-  let db = null;
-  let docRef = null;
-  let state = { bao: { days: [] }, hien: { days: [] } };
-
+  let db=null, docRef=null;
+  let state = { bao:{days:[]}, hien:{days:[]} };
   const WEEKDAY_NAMES = ['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
 
-  function showStatus(person, msg){
-    els[person].status.hidden = false;
-    els[person].status.textContent = msg;
-  }
-  function hideStatus(person){ els[person].status.hidden = true; }
-  function showStatusAll(msg){ PEOPLE.forEach(p => showStatus(p, msg)); }
-  function hideStatusAll(){ PEOPLE.forEach(hideStatus); }
+  function showStatus(p,m){ els[p].status.hidden=false; els[p].status.textContent=m; }
+  function hideStatus(p){ els[p].status.hidden=true; }
+  const showStatusAll = m => PEOPLE.forEach(p=>showStatus(p,m));
+  const hideStatusAll = () => PEOPLE.forEach(hideStatus);
+  const isConfigured = () => firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_");
+  const uid = () => Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
 
-  function isConfigured(){
-    return firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_");
-  }
-
-  function uid(){
-    return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
-  }
-
-  function todayISO(){
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  }
-
-  function isPastDate(iso){
-    return !!iso && iso < todayISO();
-  }
-
+  function isoOf(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  const todayISO = () => isoOf(new Date());
+  const isPastDate = iso => !!iso && iso < todayISO();
   function formatDayLabel(iso){
-    if (!iso) return null;
-    const d = new Date(iso + 'T00:00:00');
-    if (isNaN(d)) return null;
-    const wd = WEEKDAY_NAMES[d.getDay()];
-    const dm = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
-    return `${wd}, ${dm}`;
+    if(!iso) return null;
+    const d=new Date(iso+'T00:00:00'); if(isNaN(d)) return null;
+    return `${WEEKDAY_NAMES[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
   }
-
-  // stable, deterministic "randomness" per day id so cards don't jitter on re-render
   function hashRot(id){
-    let h = 0;
-    for (let i=0;i<id.length;i++){ h = (h*31 + id.charCodeAt(i)) % 1000; }
-    const a = -2.4 + (h % 10) * 0.12;
-    const b = 1.0 + ((h >> 3) % 10) * 0.12;
-    const c = -0.9 + ((h >> 6) % 18) * 0.1;
-    return { a, b, c };
+    let h=0; for(let i=0;i<id.length;i++){ h=(h*31+id.charCodeAt(i))%1000; }
+    return { a:-2.4+(h%10)*.12, b:1.0+((h>>3)%10)*.12, c:-.9+((h>>6)%18)*.1 };
   }
-
   async function saveState(){
-    if (!docRef) return;
-    try{
-      await setDoc(docRef, state);
-    }catch(e){
-      showStatusAll("Không lưu được: " + e.message);
-    }
+    if(!docRef) return;
+    try{ await setDoc(docRef, state); }catch(e){ showStatusAll("Không lưu được: "+e.message); }
   }
 
+  // ---------- week helpers (week = Mon..Sun, closes Sun 23:50) ----------
+  function weekKeyOfDate(d){
+    const x=new Date(d); x.setHours(0,0,0,0);
+    x.setDate(x.getDate()-((x.getDay()+6)%7));
+    return isoOf(x);
+  }
+  function currentWeekKey(){
+    const n=new Date();
+    if(n.getDay()===0 && n.getHours()*60+n.getMinutes()>=23*60+50) n.setDate(n.getDate()+1);
+    return weekKeyOfDate(n);
+  }
+  function addDaysISO(iso,n){ const d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return isoOf(d); }
+
+  function weekStats(key, live){
+    const h=state.hien;
+    const today=todayISO();
+    const undoneDays = h.days.filter(d => d.date && weekKeyOfDate(new Date(d.date+'T00:00:00'))===key
+        && (live ? d.date<today : true)
+        && d.tasks.some(t=>t.state==='pending')).length;
+    const checks = h.checkins.filter(c => weekKeyOfDate(new Date(c+'T00:00:00'))===key).length;
+    return { undoneDays, checks };
+  }
+
+  // award spins for weeks that have closed
+  function evaluateWeeks(){
+    const r=state.hien.reward, cur=currentWeekKey();
+    let changed=false;
+    if(!r.last){ r.last=addDaysISO(cur,-7); changed=true; }
+    let guard=0;
+    while(addDaysISO(r.last,7)<cur && guard++<12){
+      const k=addDaysISO(r.last,7);
+      const s=weekStats(k,false);
+      const misses = s.undoneDays + Math.max(0,3-s.checks);
+      if(misses<=1 && r.spins<2) r.spins++;
+      r.last=k; changed=true;
+    }
+    return changed;
+  }
+
+  // drawer is cleared after the month ends
+  function cleanupOldMonths(){
+    const m=todayISO().slice(0,7); let changed=false;
+    PEOPLE.forEach(p=>{
+      const before=state[p].days.length;
+      state[p].days=state[p].days.filter(d=>!d.date || d.date.slice(0,7)>=m);
+      if(state[p].days.length!==before) changed=true;
+    });
+    return changed;
+  }
+
+  // ---------- exercise levels ----------
+  const LEVELS = [
+    [["🛏️","Push-up tựa giường",5,"Hai tay chống mép giường, người thẳng, hạ ngực xuống rồi đẩy lên"],
+     ["🪑","Squat",8,"Chân rộng bằng vai, ngồi xuống như ngồi ghế, lưng thẳng"],
+     ["👏","Jump clap",30,"Nhảy lên, vỗ tay trên đầu rồi dang chân — 30 nhịp"],
+     ["⏱️","Plank (giây)",30,"Chống khuỷu tay, người thẳng như tấm ván"]],
+    [["🛏️","Push-up tựa giường",8,"Giống level 1, thêm vài cái"],["🪑","Squat",10,"Ngồi xuống sâu hơn một chút"],["👏","Jump clap",35,"35 nhịp"],["⏱️","Plank (giây)",40,"Giữ chắc bụng, đừng võng lưng"]],
+    [["🦵","Push-up quỳ gối",8,"Quỳ gối trên thảm, tay chống sàn, người thẳng từ gối đến đầu"],["🪑","Squat",10,"Giữ 1 giây ở dưới"],["👏","Jump clap",40,"40 nhịp"],["⏱️","Plank (giây)",45,"45 giây"]],
+    [["🦵","Push-up quỳ gối",12,"Hạ ngực sát sàn"],["🪑","Squat",12,"Đều và chậm"],["👏","Jump clap",45,"45 nhịp"],["⏱️","Plank (giây)",50,"50 giây"]],
+    [["💪","Push-up thường",12,"Mũi chân chống sàn, người thẳng"],["🏋️","Squat",12,"Sâu, đều, lưng thẳng"],["👏","Jump clap",50,"50 nhịp"],["⏱️","Plank (phút)",1,"Giữ 1 phút"]]
+  ];
+  const SETS=3, NEED=6;
+
+  function addCheckin(){ const t=todayISO(); if(!state.hien.checkins.includes(t)) state.hien.checkins.push(t); }
+
+  function renderHien(){
+    const box=document.getElementById('hien-extra'); box.innerHTML='';
+    const h=state.hien, ex=h.ex, r=h.reward, lv=LEVELS[ex.lv-1];
+    const today=todayISO();
+
+    // exercise panel
+    const p=document.createElement('div'); p.className='panel';
+    const done = ex.lv===5 && ex.sessions>=NEED;
+    p.innerHTML = `<h2>🏋️ Tập luyện — Level ${ex.lv}/5</h2>
+      <div class="sub">Tập 3 buổi/tuần, đủ ${NEED} buổi trọn vẹn (khoảng 2 tuần) là lên level. Mỗi ô = 1 set.</div>
+      <div class="lvbar">${[1,2,3,4,5].map(i=>`<span class="${i<ex.lv?'past':i===ex.lv?'on':''}">${i}</span>`).join('')}</div>
+      <div class="sub" style="margin:6px 0 0">Buổi hoàn thành: ${ex.sessions}/${NEED}</div>
+      <div class="prog"><i style="width:${Math.min(100,ex.sessions/NEED*100)}%"></i></div>`;
+    lv.forEach((e,i)=>{
+      const row=document.createElement('div'); row.className='ex-row';
+      row.innerHTML=`<div class="ex-ico">${e[0]}</div><div class="ex-info"><div class="ex-name">${e[1]} ${e[2]} × ${SETS}</div><div class="ex-hint">${e[3]}</div></div>`;
+      const sq=document.createElement('div'); sq.className='ex-sq';
+      for(let s=0;s<SETS;s++){
+        const idx=i*SETS+s, on=ex.ticks[idx];
+        const b=document.createElement('div'); b.className='sq'+(on?' on':''); b.textContent=on?'✓':'';
+        b.addEventListener('click',()=>{
+          ex.ticks[idx]=!ex.ticks[idx];
+          if(ex.ticks[idx]) addCheckin();
+          if(ex.ticks.every(Boolean)){
+            ex.ticks=ex.ticks.map(()=>false);
+            if(ex.lastSession!==today){
+              ex.lastSession=today; ex.sessions++;
+              if(ex.sessions>=NEED && ex.lv<5){ ex.lv++; ex.sessions=0; ex.msg=`🎉 Lên Level ${ex.lv} rồi!`; }
+              else ex.msg='✅ Xong buổi tập hôm nay!';
+            } else ex.msg='✅ Buổi thứ 2 trong ngày, giỏi quá!';
+          } else ex.msg='';
+          renderHien(); saveState();
+        });
+        sq.appendChild(b);
+      }
+      row.appendChild(sq); p.appendChild(row);
+    });
+    if(done){ const m=document.createElement('div'); m.className='msg'; m.textContent='🏆 Level 5 — mức bình thường rồi, giữ phong độ nhé!'; p.appendChild(m); }
+    if(ex.msg){ const m=document.createElement('div'); m.className='msg'; m.textContent=ex.msg; p.appendChild(m); }
+    const ci=document.createElement('button');
+    const checked=h.checkins.includes(today);
+    ci.className='btn'+(checked?' off':''); ci.textContent = checked ? '✅ Hôm nay đã điểm danh tập (bấm để bỏ)' : '🙋 Hôm nay mình có tập (điểm danh)';
+    ci.addEventListener('click',()=>{ h.checkins = checked ? h.checkins.filter(c=>c!==today) : [...h.checkins,today]; renderHien(); saveState(); });
+    p.appendChild(ci);
+    box.appendChild(p);
+
+    // reward panel
+    const key=currentWeekKey(), s=weekStats(key,true);
+    const rp=document.createElement('div'); rp.className='panel'; rp.style.borderTopColor='#ffb347';
+    rp.innerHTML=`<h2>🎁 Thưởng tuần</h2>
+      <div class="sub">Hoàn thành hết việc trong tuần + tập đủ 3 buổi. Có 1 lần ân huệ/tuần. Reset Chủ Nhật 23:50.</div>
+      <div class="stat"><span>Điểm danh tập tuần này</span><b>${s.checks}/3</b></div>
+      <div class="stat"><span>Vòng quay đang có</span><b>🎟️ ${r.spins}/2</b></div>`;
+    if(s.undoneDays===1){ const w=document.createElement('div'); w.className='warn'; w.textContent='⚠️ Có 1 ngày còn việc chưa xong — đã dùng ân huệ của tuần này!'; rp.appendChild(w); }
+    else if(s.undoneDays>=2){ const w=document.createElement('div'); w.className='warn bad'; w.textContent=`⚠️ ${s.undoneDays} ngày còn việc chưa xong — tuần này không nhận được thưởng 😢`; rp.appendChild(w); }
+    if(r.lastPrize){ const l=document.createElement('div'); l.className='msg'; l.textContent='Lần trúng gần nhất: '+r.lastPrize; rp.appendChild(l); }
+    if(r.spins>0){
+      const b=document.createElement('button'); b.className='btn gold';
+      b.textContent='🎉 Bạn đã hoàn thành xuất sắc và nhận 1 vòng quay — ấn vào đây để nhận thưởng';
+      b.addEventListener('click',openWheel); rp.appendChild(b);
+    }
+    box.appendChild(rp);
+  }
+
+  // ---------- spin wheel ----------
+  const PRIZES=[
+    {e:'🍔',n:'Jollibee (Giải đặc biệt!)',sp:true,c:'#e8483a'},
+    {e:'🥗',n:'Bánh tráng trộn',c:'#f6b73c'},
+    {e:'🥤',n:'Sinh tố',c:'#7bc67e'},
+    {e:'🧋',n:'Trà sữa',c:'#c9a27e'},
+    {e:'🍵',n:'Trà Ngooo Gia',c:'#8fd0a8'},
+    {e:'🥛',n:'Sữa tươi trân châu đường đen',c:'#8d6e63'},
+    {e:'🍝',n:'Mì Ý',c:'#f08a5d'},
+    {e:'🌭',n:'Lạp xưởng nướng đá',c:'#ef9a9a'},
+    {e:'🫓',n:'Bánh tráng nướng',c:'#ffe082'}
+  ];
+  const N=PRIZES.length, SP_CHANCE=0.05; // others share the remaining 95% equally (~11.9% each), so Jollibee is always the rarest
+  let rot=0, spinning=false;
+  const wheel=document.getElementById('wheel');
+  (function drawWheel(){
+    const a=2*Math.PI/N; let html='';
+    PRIZES.forEach((p,i)=>{
+      const a0=i*a-Math.PI/2-a/2+a/2, a1=a0+a;
+      const x0=98*Math.cos(a0), y0=98*Math.sin(a0), x1=98*Math.cos(a1), y1=98*Math.sin(a1);
+      const mid=a0+a/2, tx=66*Math.cos(mid), ty=66*Math.sin(mid);
+      html+=`<path d="M0 0 L${x0} ${y0} A98 98 0 0 1 ${x1} ${y1} Z" fill="${p.c}" stroke="#fff" stroke-width="2"/>`;
+      html+=`<text x="${tx}" y="${ty}" font-size="24" text-anchor="middle" dominant-baseline="central" transform="rotate(${mid*180/Math.PI+90} ${tx} ${ty})">${p.e}</text>`;
+    });
+    html+='<circle r="11" fill="#fff" stroke="#1d3c78" stroke-width="3"/>';
+    wheel.innerHTML=html;
+  })();
+
+  function openWheel(){ document.getElementById('result').textContent=''; document.getElementById('modal').classList.add('show'); }
+  document.getElementById('spinClose').addEventListener('click',()=>{ if(!spinning) document.getElementById('modal').classList.remove('show'); });
+  document.getElementById('spinGo').addEventListener('click',()=>{
+    const r=state.hien.reward;
+    if(spinning) return;
+    if(r.spins<1){ document.getElementById('result').textContent='Hết vòng quay rồi 😅'; return; }
+    // pick: special has 5%, but not twice within 15 minutes
+    let special = Math.random()<SP_CHANCE;
+    if(special && Date.now()-(r.lastSpecial||0) < 15*60*1000) special=false;
+    const idx = special ? 0 : 1+Math.floor(Math.random()*(N-1));
+    spinning=true;
+    document.getElementById('result').textContent='';
+    // slice i centre sits at angle i*(360/N) clockwise from the top
+    const slice=360/N;
+    rot += 360*6 + ((360 - (rot%360)) % 360) - idx*slice + (Math.random()-.5)*slice*.6;
+    wheel.style.transform=`rotate(${rot}deg)`;
+    setTimeout(()=>{
+      spinning=false;
+      const pz=PRIZES[idx];
+      r.spins--; r.lastPrize=pz.e+' '+pz.n; if(pz.sp) r.lastSpecial=Date.now();
+      document.getElementById('result').textContent=`${pz.e} ${pz.n}`;
+      renderHien(); saveState();
+    },5200);
+  });
+
+  // ---------- day cards ----------
   function renderPerson(person){
-    const daysEl = els[person].days;
-    const personState = state[person];
-    daysEl.innerHTML = '';
+    const daysEl=els[person].days, personState=state[person];
+    const drawer=els[person].drawer, body=drawer.querySelector('.drawer-body');
+    daysEl.innerHTML=''; body.innerHTML='';
+    personState.days.forEach(d=>{ if(!d.date) d.date=todayISO(); });
+    const past=personState.days.filter(d=>isPastDate(d.date) && !d.tasks.some(t=>t.state==='pending')).sort((a,b)=>b.date.localeCompare(a.date));
+    const active=personState.days.filter(d=>!(isPastDate(d.date) && !d.tasks.some(t=>t.state==='pending'))).sort((a,b)=>a.date.localeCompare(b.date));
+    drawer.querySelector('.cnt').textContent=past.length;
+    if(past.length){ const n=document.createElement('p'); n.className='drawer-note'; n.textContent='Các ngày đã qua và đã xong hết. Việc chưa xong luôn ở ngoài danh sách. Sang tháng mới ngăn kéo được dọn sạch.'; body.appendChild(n); }
+    else { const n=document.createElement('p'); n.className='drawer-note'; n.style.margin='16px 0 6px'; n.textContent='Chưa có ghi chú cũ nào.'; body.appendChild(n); }
 
-    personState.days.forEach(day => {
-      if (!day.date) day.date = todayISO(); // migrate legacy days with no date
-      const dayIsPast = isPastDate(day.date);
-
-      const rot = hashRot(day.id);
-
-      const card = document.createElement('div');
-      card.className = 'day-note';
-      card.style.setProperty('--rot-a', rot.a + 'deg');
-      card.style.setProperty('--rot-b', rot.b + 'deg');
-      card.style.setProperty('--rot-c', rot.c + 'deg');
-
-      const inner = document.createElement('div');
-      inner.className = 'day-note-inner';
-
-      const header = document.createElement('div');
-      header.className = 'day-header';
-
-      const dateWrap = document.createElement('div');
-      dateWrap.className = 'day-date-wrap';
-
-      const label = document.createElement('span');
-      const formatted = formatDayLabel(day.date);
-      label.className = 'day-date-label' + (formatted ? '' : ' placeholder');
-      label.textContent = formatted || 'chọn ngày...';
-
-      const calBtn = document.createElement('button');
-      calBtn.type = 'button';
-      calBtn.className = 'cal-btn';
-      calBtn.title = 'Chọn ngày';
-      calBtn.textContent = '📅';
-
-      const dateInput = document.createElement('input');
-      dateInput.type = 'date';
-      dateInput.className = 'day-date-input';
-      dateInput.value = day.date || '';
-      dateInput.tabIndex = -1;
-      dateInput.addEventListener('change', () => {
-        day.date = dateInput.value;
-        renderPerson(person); saveState();
-      });
-
+    [...active,...past].forEach(day=>{
+      const dayIsPast=isPastDate(day.date);
+      const rot=hashRot(day.id);
+      const card=document.createElement('div'); card.className='day-note';
+      card.style.setProperty('--rot-a',rot.a+'deg'); card.style.setProperty('--rot-b',rot.b+'deg'); card.style.setProperty('--rot-c',rot.c+'deg');
+      const inner=document.createElement('div'); inner.className='day-note-inner';
+      const header=document.createElement('div'); header.className='day-header';
+      const dateWrap=document.createElement('div'); dateWrap.className='day-date-wrap';
+      const label=document.createElement('span');
+      const formatted=formatDayLabel(day.date);
+      label.className='day-date-label'+(formatted?'':' placeholder');
+      label.textContent=formatted||'chọn ngày...';
+      const calBtn=document.createElement('button'); calBtn.type='button'; calBtn.className='cal-btn'; calBtn.title='Chọn ngày'; calBtn.textContent='📅';
+      const dateInput=document.createElement('input'); dateInput.type='date'; dateInput.className='day-date-input'; dateInput.value=day.date||''; dateInput.tabIndex=-1;
+      dateInput.addEventListener('change',()=>{ day.date=dateInput.value; renderPerson(person); saveState(); });
       function openPicker(){
-        if (typeof dateInput.showPicker === 'function'){
-          try { dateInput.showPicker(); return; } catch(e){ /* fall through */ }
-        }
-        dateInput.style.pointerEvents = 'auto';
-        dateInput.style.opacity = '0.01';
-        dateInput.focus();
-        dateInput.click();
-        setTimeout(() => {
-          dateInput.style.pointerEvents = 'none';
-          dateInput.style.opacity = '0';
-        }, 300);
+        if(typeof dateInput.showPicker==='function'){ try{ dateInput.showPicker(); return; }catch(e){} }
+        dateInput.style.pointerEvents='auto'; dateInput.style.opacity='0.01'; dateInput.focus(); dateInput.click();
+        setTimeout(()=>{ dateInput.style.pointerEvents='none'; dateInput.style.opacity='0'; },300);
       }
-      dateWrap.addEventListener('click', openPicker);
+      dateWrap.addEventListener('click',openPicker);
+      dateWrap.append(label,calBtn,dateInput);
 
-      dateWrap.appendChild(label);
-      dateWrap.appendChild(calBtn);
-      dateWrap.appendChild(dateInput);
-
-      const actions = document.createElement('div');
-      actions.className = 'day-actions';
-      const delDayBtn = document.createElement('button');
-      delDayBtn.className = 'icon-btn';
-      delDayBtn.textContent = '✕';
-      delDayBtn.title = 'Xoá ngày này';
-      delDayBtn.addEventListener('click', () => {
-        personState.days = personState.days.filter(d => d.id !== day.id);
-        renderPerson(person); saveState();
-      });
+      const actions=document.createElement('div'); actions.className='day-actions';
+      const delDayBtn=document.createElement('button'); delDayBtn.className='icon-btn'; delDayBtn.textContent='✕'; delDayBtn.title='Xoá ngày này';
+      delDayBtn.addEventListener('click',()=>{ personState.days=personState.days.filter(d=>d.id!==day.id); renderPerson(person); saveState(); });
       actions.appendChild(delDayBtn);
+      header.append(dateWrap,actions); inner.appendChild(header);
 
-      header.appendChild(dateWrap);
-      header.appendChild(actions);
-      inner.appendChild(header);
-
-      const list = document.createElement('ul');
-      list.className = 'tasks';
-
-      if (day.tasks.length === 0){
-        const empty = document.createElement('div');
-        empty.className = 'empty-day';
-        empty.textContent = 'chưa có việc gì...';
-        list.appendChild(empty);
-      }
-
-      day.tasks.forEach(task => {
-        const overdue = dayIsPast && task.state === 'pending';
-        const li = document.createElement('li');
-        li.className = 'task'
-          + (task.state === 'done' ? ' done' : '')
-          + (task.state === 'cancelled' ? ' cancelled' : '')
-          + (overdue ? ' overdue' : '');
-
-        const box = document.createElement('div');
-        box.className = 'box' + (overdue ? ' overdue' : '');
-        box.textContent = task.state === 'done' ? '✓' : (task.state === 'cancelled' ? '×' : '');
-        box.addEventListener('click', () => {
-          task.state = task.state === 'pending' ? 'done'
-                     : task.state === 'done' ? 'cancelled'
-                     : 'pending';
+      const list=document.createElement('ul'); list.className='tasks';
+      if(day.tasks.length===0){ const e=document.createElement('div'); e.className='empty-day'; e.textContent='chưa có việc gì...'; list.appendChild(e); }
+      day.tasks.forEach(task=>{
+        const overdue=dayIsPast && task.state==='pending';
+        const li=document.createElement('li');
+        li.className='task'+(task.state==='done'?' done':'')+(task.state==='cancelled'?' cancelled':'')+(overdue?' overdue':'')+(task.late&&task.state==='done'?' late':'');
+        const box=document.createElement('div'); box.className='box'+(overdue?' overdue':'');
+        box.textContent=task.state==='done'?'✓':(task.state==='cancelled'?'×':'');
+        box.addEventListener('click',()=>{
+          task.state = task.state==='pending'?'done': task.state==='done'?'cancelled':'pending';
+          task.late = task.state==='done' && dayIsPast;
           renderPerson(person); saveState();
         });
-
-        const text = document.createElement('span');
-        text.className = 'task-text';
-        text.textContent = task.text;
-
-        const del = document.createElement('button');
-        del.className = 'del';
-        del.textContent = '✕';
-        del.title = 'Xoá việc này';
-        del.addEventListener('click', () => {
-          day.tasks = day.tasks.filter(t => t.id !== task.id);
-          renderPerson(person); saveState();
-        });
-
-        li.appendChild(box);
-        li.appendChild(text);
-        li.appendChild(del);
-        list.appendChild(li);
+        const text=document.createElement('span'); text.className='task-text'; text.textContent=task.text;
+        const del=document.createElement('button'); del.className='del'; del.textContent='✕'; del.title='Xoá việc này';
+        del.addEventListener('click',()=>{ day.tasks=day.tasks.filter(t=>t.id!==task.id); renderPerson(person); saveState(); });
+        li.append(box,text,del); list.appendChild(li);
       });
-
       inner.appendChild(list);
 
-      const addRow = document.createElement('div');
-      addRow.className = 'add-task-row';
-      const input = document.createElement('input');
-      input.placeholder = 'thêm việc mới...';
-      const addBtn = document.createElement('button');
-      addBtn.textContent = '+';
-
+      const addRow=document.createElement('div'); addRow.className='add-task-row';
+      const input=document.createElement('input'); input.placeholder='thêm việc mới...';
+      const addBtn=document.createElement('button'); addBtn.textContent='+';
       function addTask(){
-        const v = input.value.trim();
-        if (!v) return;
-        day.tasks.push({ id: uid(), text: v, state: 'pending' });
-        input.value = '';
+        const v=input.value.trim(); if(!v) return;
+        day.tasks.push({id:uid(),text:v,state:'pending'}); input.value='';
         renderPerson(person); saveState();
       }
-      addBtn.addEventListener('click', addTask);
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
-
-      addRow.appendChild(input);
-      addRow.appendChild(addBtn);
-      inner.appendChild(addRow);
+      addBtn.addEventListener('click',addTask);
+      input.addEventListener('keydown',e=>{ if(e.key==='Enter') addTask(); });
+      addRow.append(input,addBtn); inner.appendChild(addRow);
 
       card.appendChild(inner);
-      daysEl.appendChild(card);
+      (dayIsPast?body:daysEl).appendChild(card);
     });
+    if(person==='hien'){ try{ renderHien(); }catch(e){ console.error(e); } }
   }
 
-  function renderAll(){ PEOPLE.forEach(renderPerson); }
+  const renderAll=()=>PEOPLE.forEach(renderPerson);
 
-  document.querySelectorAll('.add-day button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const person = btn.dataset.person;
-      state[person].days.push({ id: uid(), date: todayISO(), tasks: [] });
+  document.querySelectorAll('.add-day button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const person=btn.dataset.person;
+      state[person].days.push({id:uid(),date:todayISO(),tasks:[]});
       renderPerson(person); saveState();
     });
   });
 
-  async function start(){
-    if (!isConfigured()){
-      showStatusAll('Chưa kết nối Firebase — điền firebaseConfig trong file index.html để lưu dữ liệu.');
-      state = {
-        bao: { days: [
-          { id: uid(), date: todayISO(), tasks: [
-            { id: uid(), text: 'Máu', state: 'done' },
-            { id: uid(), text: 'Đại cương', state: 'pending' }
-          ]}
-        ]},
-        hien: { days: [] }
-      };
-      renderAll();
-      return;
-    }
-
-    try{
-      const app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-      docRef = doc(db, 'todo', 'main');
-
-      const snap = await getDoc(docRef);
-      if (!snap.exists()){
-        await setDoc(docRef, { bao: { days: [] }, hien: { days: [] } });
-      }
-
-      onSnapshot(docRef, (s) => {
-        const data = s.data() || {};
-        // migrate old single-list schema ({ days: [...] }) into Bảo's column, once
-        if (!data.bao && !data.hien && Array.isArray(data.days)){
-          state = { bao: { days: data.days }, hien: { days: [] } };
-        } else {
-          state = {
-            bao:  data.bao  && Array.isArray(data.bao.days)  ? data.bao  : { days: [] },
-            hien: data.hien && Array.isArray(data.hien.days) ? data.hien : { days: [] }
-          };
-        }
-        renderAll();
-        hideStatusAll();
-      }, (err) => {
-        showStatusAll('Lỗi kết nối Firestore: ' + err.message);
-      });
-    }catch(e){
-      showStatusAll('Lỗi khởi tạo Firebase: ' + e.message);
-    }
+  function defaultHien(h){
+    h=h||{};
+    return {
+      days: Array.isArray(h.days)?h.days:[],
+      checkins: Array.isArray(h.checkins)?h.checkins:[],
+      ex: Object.assign({lv:1,sessions:0,ticks:Array(LEVELS[0].length*SETS).fill(false),lastSession:'',msg:''}, h.ex||{}),
+      reward: Object.assign({spins:0,last:'',lastSpecial:0,lastPrize:''}, h.reward||{})
+    };
   }
 
+  async function start(){
+    state.hien=defaultHien(); renderAll(); // exercise note shows immediately, even before Firebase loads
+    if(!isConfigured()){
+      showStatusAll('Chưa kết nối Firebase — điền firebaseConfig trong file index.html để lưu dữ liệu.');
+      state={ bao:{days:[{id:uid(),date:todayISO(),tasks:[{id:uid(),text:'Máu',state:'done'},{id:uid(),text:'Đại cương',state:'pending'}]}]}, hien:defaultHien() };
+      renderAll(); return;
+    }
+    try{
+      const app=initializeApp(firebaseConfig);
+      db=getFirestore(app);
+      docRef=doc(db,'todo','main');
+      const snap=await getDoc(docRef);
+      if(!snap.exists()){ await setDoc(docRef,{bao:{days:[]},hien:defaultHien()}); }
+
+      onSnapshot(docRef,(s)=>{
+        const data=s.data()||{};
+        if(!data.bao && !data.hien && Array.isArray(data.days)){
+          state={ bao:{days:data.days}, hien:defaultHien() };
+        } else {
+          state={ bao: data.bao && Array.isArray(data.bao.days)?data.bao:{days:[]}, hien: defaultHien(data.hien) };
+        }
+        const c1=evaluateWeeks();
+        const c2=cleanupOldMonths();
+        renderAll(); hideStatusAll();
+        if(c1||c2) saveState();
+      },(err)=>{ showStatusAll('Lỗi kết nối Firestore: '+err.message); });
+    }catch(e){ showStatusAll('Lỗi khởi tạo Firebase: '+e.message); }
+  }
   start();
 </script>
 </body>
