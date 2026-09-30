@@ -379,7 +379,7 @@ function renderPerson(person){
     const add=()=>{const v=inp.value.trim();if(!v)return;day.tasks.push({id:uid(),text:v,state:'pending'});inp.value='';renderPerson(person);saveState()};
     ab.addEventListener('click',add);inp.addEventListener('keydown',e=>{if(e.key==='Enter')add()});
     ar.append(inp,ab);inner.appendChild(ar);card.appendChild(inner);
-    (dayIsPast?body:daysEl).appendChild(card);
+    (isArch(day)?body:daysEl).appendChild(card);
   });
   if(person==='hien'){try{renderHien()}catch(e){console.error(e)}}
 }
